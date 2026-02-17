@@ -1,141 +1,262 @@
 {
-  "description": "Full Stack Engineer building performant web applications and developer tools. Currently crafting interfaces at Vercel",
+  "description": "Professional programmer building elegant software solutions",
   "nav": {
+    "home": "home",
+    "blog": "blog",
     "about": "about",
-    "projects": "projects",
-    "experience": "experience",
-    "contact": "contact"
+    "uses": "uses",
+    "homelab": "homelab"
   },
   "hero": {
-    "title": "Full Stack Engineer",
-    "p1": "building performant web applications and developer tools. Currently crafting interfaces at Vercel",
-    "p2": "Previously shipped products at Linear, Stripe, and early-stage startups. I care about clean code, fast load times, and thoughtful UX.",
-    "p3": "When not coding, you'll find me contributing to open source, writing about web performance, or exploring new frameworks."
+    "title": "Professional Programmer",
+    "p1": "building elegant software solutions. Passionate about clean code, simplicity, and developer experience.",
+    "p2": "Works across the full stack, from system design to user interfaces. Currently focused on web technologies and open source.",
+    "p3": "Always learning, always building. Exploring new languages, frameworks, and contributing to the community."
   },
-  "projects": {
-    "title": "Projects",
-    "item_1": {
-      "name": "hybrid-astro-ui",
-      "description": "UI elements for Astro using a hybrid model: zero-JS Astro + progressive enhancement with web components.",
-      "link": "https://github.com/JorgeRosbel/hybrid-astro-ui"
+  "blog": {
+    "title": "Blog",
+    "description": "Thoughts on programming, software design, and technology"
+  },
+  "about": {
+    "title": "About",
+    "description": "Learn more about my journey and approach to software development"
+  },
+  "uses": {
+    "title": "Uses",
+    "description": "How I work, what I run, and what I am building now.",
+    "intro": "This is the practical stack behind my day-to-day work: tools I trust, lessons learned the hard way, and current experiments that keep me sharp.",
+    "terminal_label": "operator profile // uses",
+    "terminal_hint": "Use [ and ] to switch views • press F to cycle stack filters",
+    "tabs": {
+      "now": "Now",
+      "stack": "Stack",
+      "lessons": "Lessons",
+      "work": "Work"
     },
-    "item_2": {
-      "name": "http-sentinel",
-      "description": "A TypeScript library that provides a comprehensive set of HTTP error classes and utilities for handling HTTP errors.",
-      "link": "https://github.com/JorgeRosbel/http-sentinel"
+    "now": {
+      "title": "What is on my desk right now",
+      "cards": [
+        {
+          "label": "Currently building",
+          "text": "A personal platform around homelab operations with GitOps delivery and immutable image-based host updates."
+        },
+        {
+          "label": "Reliability obsession",
+          "text": "Tight feedback loops: every change must be observable, reproducible, and easy to roll back."
+        },
+        {
+          "label": "Learning loop",
+          "text": "Deep-diving eBPF and OpenTelemetry to understand behavior beyond dashboards and logs."
+        },
+        {
+          "label": "Personal rule",
+          "text": "If a task repeats more than twice, I automate it or document it as a scriptable runbook."
+        }
+      ]
     },
-    "item_3": {
-      "name": "gitzen",
-      "description": "AI-powered CLI tool for automatic git commit message generation.",
-      "link": "https://github.com/JorgeRosbel/gitzen"
+    "stack": {
+      "title": "Tech stack matrix",
+      "hint": "Filter by domain to see what I rely on every day.",
+      "filters": {
+        "all": "All",
+        "backend": "Backend",
+        "infra": "Infrastructure",
+        "tooling": "Tooling",
+        "observability": "Observability",
+        "frontend": "Frontend"
+      },
+      "badges": {
+        "daily": "Daily",
+        "active": "Active",
+        "exploring": "Exploring"
+      },
+      "items": [
+        {
+          "name": "Go",
+          "category": "backend",
+          "level": "daily",
+          "role": "Primary language for services and automation.",
+          "note": "Fast feedback, strong tooling, static binaries, predictable performance."
+        },
+        {
+          "name": "TypeScript",
+          "category": "frontend",
+          "level": "daily",
+          "role": "Glue language for UI and API boundaries.",
+          "note": "Makes interfaces explicit and safer across the stack."
+        },
+        {
+          "name": "Astro",
+          "category": "frontend",
+          "level": "active",
+          "role": "Framework for content-first and high-performance pages.",
+          "note": "Minimal runtime by default keeps pages fast and maintainable."
+        },
+        {
+          "name": "Tailwind CSS",
+          "category": "frontend",
+          "level": "daily",
+          "role": "Styling system for fast iterations with clear constraints.",
+          "note": "Keeps visual language consistent without heavy custom CSS."
+        },
+        {
+          "name": "Kubernetes",
+          "category": "infra",
+          "level": "daily",
+          "role": "Core platform for scheduling and service operations.",
+          "note": "I treat manifests as product artifacts, not just deployment files."
+        },
+        {
+          "name": "FluxCD",
+          "category": "infra",
+          "level": "active",
+          "role": "GitOps reconciler for cluster state.",
+          "note": "Desired state in Git gives safer changes and clear audit trails."
+        },
+        {
+          "name": "Terraform",
+          "category": "infra",
+          "level": "active",
+          "role": "Infrastructure provisioning and environment baselines.",
+          "note": "Declarative foundation so environments stay reproducible."
+        },
+        {
+          "name": "GitHub Actions",
+          "category": "tooling",
+          "level": "daily",
+          "role": "CI/CD pipelines and automation.",
+          "note": "Quality gates run early so production stays boring."
+        },
+        {
+          "name": "Prometheus",
+          "category": "observability",
+          "level": "active",
+          "role": "Metrics backbone for SLO-oriented monitoring.",
+          "note": "If I cannot measure it, I do not trust it in production."
+        },
+        {
+          "name": "Grafana",
+          "category": "observability",
+          "level": "active",
+          "role": "Operational visibility and alert dashboards.",
+          "note": "Dashboards are for navigation, alerts are for action."
+        },
+        {
+          "name": "OpenTelemetry",
+          "category": "observability",
+          "level": "exploring",
+          "role": "Unified traces/metrics/logs instrumentation strategy.",
+          "note": "Building shared telemetry conventions across projects."
+        },
+        {
+          "name": "bootc",
+          "category": "infra",
+          "level": "exploring",
+          "role": "Image-based host lifecycle for immutable systems.",
+          "note": "Pushing host management toward the same discipline as apps."
+        },
+        {
+          "name": "Neovim",
+          "category": "tooling",
+          "level": "daily",
+          "role": "Primary editing environment.",
+          "note": "Keyboard-first workflows reduce friction during deep work."
+        },
+        {
+          "name": "Zed",
+          "category": "tooling",
+          "level": "active",
+          "role": "Secondary editor for pair sessions and quick context switching.",
+          "note": "Useful for speed, especially when reviewing unfamiliar code."
+        },
+        {
+          "name": "PostgreSQL",
+          "category": "backend",
+          "level": "daily",
+          "role": "Default datastore for transactional workloads.",
+          "note": "Reliable, boring, and feature-rich for real systems."
+        },
+        {
+          "name": "Redis",
+          "category": "backend",
+          "level": "active",
+          "role": "Caching, queues, and low-latency coordination.",
+          "note": "Best when used intentionally and with strict expiry rules."
+        }
+      ]
     },
-    "item_4": {
-      "name": "NovaBoost",
-      "description": "Free Astro 5 & TailwindCSS blog template—SEO-optimized, with JSON-LD and optional AI post generation.",
-      "link": "https://github.com/JorgeRosbel/NovaBoost"
+    "lessons": {
+      "title": "What the field taught me",
+      "items": [
+        {
+          "title": "Simple scales",
+          "text": "The most resilient systems are usually the easiest to explain on a whiteboard."
+        },
+        {
+          "title": "Observe before you optimize",
+          "text": "Most performance work starts with wrong assumptions. Instrumentation prevents wasted effort."
+        },
+        {
+          "title": "Automate the boring path",
+          "text": "Humans should review intent, not click through repetitive deployment steps."
+        },
+        {
+          "title": "Write for future me",
+          "text": "Clear docs and runbooks beat perfect memory every single time."
+        }
+      ]
     },
-    "item_5": {
-      "name": "astro-i18n",
-      "description": "Simple internationalization (i18n) library for Astro with TypeScript support.",
-      "link": "https://github.com/JorgeRosbel/astro-i18n"
-    },
-    "item_6": {
-      "name": "astro-collections",
-      "description": "A collection utilities library for Astro framework, providing easy collection management components.",
-      "link": "https://github.com/JorgeRosbel/astro-collections"
-    },
-    "item_7": {
-      "name": "Geofisik Tool",
-      "description": "Geophysical web application to monitor vertical displacements in structures with interactive maps and time-series charts.",
-      "link": "https://tool.geofisik.com/"
-    },
-    "item_8": {
-      "name": "EmoteShowcase",
-      "description": "Web app for dynamic resizing and visualization of emotes with live previews and optimized export for streaming.",
-      "link": "https://emoteshowcase.com/"
+    "work": {
+      "title": "How I move from idea to production",
+      "mission_label": "Current mission",
+      "mission_text": "Building a reproducible cloud-native baseline that unifies local development, homelab infrastructure, and production-style operations.",
+      "step_prefix": "Step",
+      "steps": [
+        {
+          "title": "Discover",
+          "text": "Collect real pain points from daily operations and convert them into concrete engineering constraints."
+        },
+        {
+          "title": "Design",
+          "text": "Draft the smallest architecture that can survive real traffic, incidents, and maintenance."
+        },
+        {
+          "title": "Ship",
+          "text": "Deliver in thin slices with CI gates, progressive rollout, and rollback safety."
+        },
+        {
+          "title": "Observe",
+          "text": "Track latency, errors, and cost continuously, then feed that data into the next iteration."
+        }
+      ]
     }
   },
-  "experience": {
-    "title": "Experience",
-    "item_1": {
-      "period": "2024 — now",
-      "role": "Senior Engineer",
-      "company": "Vercel",
-      "description": "Building the frontend cloud. Working on the dashboard, deployment infrastructure, and developer experience."
-    },
-    "item_2": {
-      "period": "2022 — 2024",
-      "role": "Software Engineer",
-      "company": "Linear",
-      "description": "Shipped real-time sync, keyboard-first interactions, and performance optimizations."
-    },
-    "item_3": {
-      "period": "2020 — 2022",
-      "role": "Full Stack Developer",
-      "company": "Stripe",
-      "description": "Designed payment flows and merchant dashboards. Led the migration to React 18 and improved CI/CD pipelines."
-    },
-    "item_4": {
-      "period": "2018 — 2020",
-      "role": "Frontend Engineer",
-      "company": "Early Startup",
-      "description": "First engineering hire. Built the core product from scratch using Next.js and Tailwind CSS."
-    }
-  },
-  "skills": {
-    "heading": "Skills",
-    "react": {
-      "title": "React",
-      "category": "Lib",
-      "description": "UI Components, Hooks, State Management",
-      "experience_years": "4",
-      "experience_label": "years of experience"
-    },
-    "typescript": {
-      "title": "TypeScript",
-      "category": "Language",
-      "description": "Static Typing, Generics, Interfaces",
-      "experience_years": "3",
-      "experience_label": "years of experience"
-    },
-    "astro": {
-      "title": "Astro",
-      "category": "Framework",
-      "description": "Island Architecture, Static Site Generation",
-      "experience_years": "2",
-      "experience_label": "years of experience"
-    },
-    "tailwind": {
-      "title": "Tailwind CSS",
-      "category": "Design",
-      "description": "Utility-First CSS, Responsive Design",
-      "experience_years": "4",
-      "experience_label": "years of experience"
-    },
-    "nodejs": {
-      "title": "Node.js",
-      "category": "Backend",
-      "description": "REST APIs, Express, Authentication",
-      "experience_years": "3",
-      "experience_label": "years of experience"
-    },
-    "kali_linux": {
-      "title": "Kali Linux",
-      "category": "Security",
-      "description": "Pentesting, SQL Injection, Network Auditing",
-      "experience_years": "1",
-      "experience_label": "year of experience"
-    }
+  "homelab": {
+    "title": "Homelab",
+    "description": "My personal homelab setup and projects"
   },
   "contact": {
-    "status": "Available for freelance",
+    "status": "Available for opportunities",
     "email_label": "Email",
-    "email_url": "mailto:tu@email.com",
+    "email_url": "mailto:joshua.hoogstraat@icloud.com",
     "github_label": "GitHub",
-    "github_url": "https://github.com/tu-usuario",
+    "github_url": "https://github.com/jhoogstraat",
+    "mastodon_label": "Mastodon",
+    "mastodon_url": "https://mastodon.social/@jhoogstraat",
+    "bluesky_label": "Bluesky",
+    "bluesky_url": "https://bsky.app/profile/jhoogstraat.bsky.social",
     "x_label": "X",
-    "x_url": "https://x.com/tu-usuario",
-    "linkedin_label": "Linkedin",
-    "linkedin_url": "https://linkedin.com/in/tu-perfil"
+    "x_url": "https://x.com/jhoogstraat",
+    "linkedin_label": "LinkedIn",
+    "linkedin_url": "https://linkedin.com/in/jhoogstraat"
+  },
+  "terminal": {
+    "skills_cmd": "cat skills.txt",
+    "skills": "Go • Kubernetes • GitOps • Cloud-Native",
+    "hobbies_cmd": "cat hobbies.txt",
+    "hobbies": "Homelab • Open Source • Automation",
+    "focus_cmd": "echo $CURRENT_FOCUS",
+    "focus": "bootc • Immutable Infrastructure • eBPF",
+    "hint": "Press ? for keyboard shortcuts"
   }
 }

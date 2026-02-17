@@ -1,0 +1,262 @@
+{
+  "description": "Professioneller Programmierer, der elegante Softwarelösungen entwickelt",
+  "nav": {
+    "home": "start",
+    "blog": "blog",
+    "about": "über",
+    "uses": "nutzung",
+    "homelab": "homelab"
+  },
+  "hero": {
+    "title": "Professioneller Programmierer",
+    "p1": "der elegante Softwarelösungen entwickelt. Leidenschaftlich für sauberen Code, Einfachheit und Entwicklererfahrung.",
+    "p2": "Arbeitet über den gesamten Stack, vom Systemdesign bis zu Benutzeroberflächen. Aktuell fokussiert auf Webtechnologien und Open Source.",
+    "p3": "Immer am Lernen, immer am Bauen. Erkundet neue Sprachen, Frameworks und trägt zur Community bei."
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Gedanken zur Programmierung, Software-Design und Technologie"
+  },
+  "about": {
+    "title": "Über",
+    "description": "Erfahren Sie mehr über meine Reise und meinen Ansatz zur Softwareentwicklung"
+  },
+  "uses": {
+    "title": "Nutzung",
+    "description": "Wie ich arbeite, was ich betreibe und woran ich gerade baue.",
+    "intro": "Das ist mein praktischer Arbeits-Stack: Werkzeuge, auf die ich mich täglich verlasse, Lektionen aus dem Feld und Experimente, die mich technisch schärfen.",
+    "terminal_label": "operator profil // nutzung",
+    "terminal_hint": "Mit [ und ] zwischen Ansichten wechseln • mit F Stack-Filter durchschalten",
+    "tabs": {
+      "now": "Jetzt",
+      "stack": "Stack",
+      "lessons": "Lernen",
+      "work": "Arbeit"
+    },
+    "now": {
+      "title": "Was aktuell auf meinem Schreibtisch liegt",
+      "cards": [
+        {
+          "label": "Aktuell im Bau",
+          "text": "Eine persönliche Plattform für Homelab-Betrieb mit GitOps-Deployment und immutable, image-basierten Host-Updates."
+        },
+        {
+          "label": "Reliability-Fokus",
+          "text": "Kurze Feedback-Loops: Jede Änderung muss beobachtbar, reproduzierbar und sauber rückrollbar sein."
+        },
+        {
+          "label": "Lernschleife",
+          "text": "Tiefe Arbeit mit eBPF und OpenTelemetry, um Verhalten jenseits von Dashboards und Logs zu verstehen."
+        },
+        {
+          "label": "Persönliche Regel",
+          "text": "Wiederholt sich eine Aufgabe mehr als zweimal, wird sie automatisiert oder als Runbook dokumentiert."
+        }
+      ]
+    },
+    "stack": {
+      "title": "Tech-Stack Matrix",
+      "hint": "Nach Domäne filtern, um meinen täglichen Kern-Stack zu sehen.",
+      "filters": {
+        "all": "Alle",
+        "backend": "Backend",
+        "infra": "Infrastruktur",
+        "tooling": "Tooling",
+        "observability": "Observability",
+        "frontend": "Frontend"
+      },
+      "badges": {
+        "daily": "Täglich",
+        "active": "Aktiv",
+        "exploring": "Exploriere"
+      },
+      "items": [
+        {
+          "name": "Go",
+          "category": "backend",
+          "level": "daily",
+          "role": "Primäre Sprache für Services und Automatisierung.",
+          "note": "Schnelles Feedback, starke Toolchain, statische Binaries, vorhersagbare Performance."
+        },
+        {
+          "name": "TypeScript",
+          "category": "frontend",
+          "level": "daily",
+          "role": "Verbindende Sprache für UI- und API-Grenzen.",
+          "note": "Macht Schnittstellen explizit und reduziert Fehler über den gesamten Stack."
+        },
+        {
+          "name": "Astro",
+          "category": "frontend",
+          "level": "active",
+          "role": "Framework für content-first und sehr performante Seiten.",
+          "note": "Minimale Runtime hält Seiten schnell und langfristig wartbar."
+        },
+        {
+          "name": "Tailwind CSS",
+          "category": "frontend",
+          "level": "daily",
+          "role": "Styling-System für schnelle Iterationen mit klaren Leitplanken.",
+          "note": "Sorgt für konsistente Gestaltung ohne schweres Custom-CSS."
+        },
+        {
+          "name": "Kubernetes",
+          "category": "infra",
+          "level": "daily",
+          "role": "Kernplattform für Scheduling und Service-Betrieb.",
+          "note": "Ich behandle Manifeste als Produktartefakte, nicht als Nebenprodukt."
+        },
+        {
+          "name": "FluxCD",
+          "category": "infra",
+          "level": "active",
+          "role": "GitOps-Reconciler für den Cluster-Zustand.",
+          "note": "Desired State in Git ermöglicht sichere Änderungen und klare Nachvollziehbarkeit."
+        },
+        {
+          "name": "Terraform",
+          "category": "infra",
+          "level": "active",
+          "role": "Provisionierung und Baselines für Infrastruktur.",
+          "note": "Deklarative Grundlage, damit Umgebungen reproduzierbar bleiben."
+        },
+        {
+          "name": "GitHub Actions",
+          "category": "tooling",
+          "level": "daily",
+          "role": "CI/CD-Pipelines und Automatisierung.",
+          "note": "Qualitäts-Gates greifen früh, damit Produktion langweilig bleibt."
+        },
+        {
+          "name": "Prometheus",
+          "category": "observability",
+          "level": "active",
+          "role": "Metrik-Backbone für SLO-orientiertes Monitoring.",
+          "note": "Was ich nicht messen kann, vertraue ich in Produktion nicht."
+        },
+        {
+          "name": "Grafana",
+          "category": "observability",
+          "level": "active",
+          "role": "Operative Sichtbarkeit und Alert-Dashboards.",
+          "note": "Dashboards dienen der Orientierung, Alerts dem Handeln."
+        },
+        {
+          "name": "OpenTelemetry",
+          "category": "observability",
+          "level": "exploring",
+          "role": "Einheitliche Strategie für Traces, Metrics und Logs.",
+          "note": "Ich baue gemeinsame Telemetrie-Konventionen über Projekte hinweg auf."
+        },
+        {
+          "name": "bootc",
+          "category": "infra",
+          "level": "exploring",
+          "role": "Image-basierter Host-Lifecycle für immutable Systeme.",
+          "note": "Host-Management mit der gleichen Disziplin wie Applikationen."
+        },
+        {
+          "name": "Neovim",
+          "category": "tooling",
+          "level": "daily",
+          "role": "Primäre Entwicklungsumgebung.",
+          "note": "Keyboard-first Workflows reduzieren Reibung bei konzentrierter Arbeit."
+        },
+        {
+          "name": "Zed",
+          "category": "tooling",
+          "level": "active",
+          "role": "Sekundärer Editor für Pairing und schnelle Kontextwechsel.",
+          "note": "Sehr nützlich für Tempo, besonders bei fremden Codebasen."
+        },
+        {
+          "name": "PostgreSQL",
+          "category": "backend",
+          "level": "daily",
+          "role": "Standard-Datenbank für transaktionale Workloads.",
+          "note": "Zuverlässig, langweilig und funktionsreich für echte Systeme."
+        },
+        {
+          "name": "Redis",
+          "category": "backend",
+          "level": "active",
+          "role": "Caching, Queues und Koordination mit niedriger Latenz.",
+          "note": "Am besten mit klaren Einsatzgrenzen und sauberen Expiry-Regeln."
+        }
+      ]
+    },
+    "lessons": {
+      "title": "Was mich das Feld gelehrt hat",
+      "items": [
+        {
+          "title": "Einfach skaliert",
+          "text": "Die robustesten Systeme sind meist die, die man in zwei Minuten am Whiteboard erklären kann."
+        },
+        {
+          "title": "Erst beobachten, dann optimieren",
+          "text": "Die meiste Performance-Arbeit startet mit falschen Annahmen. Instrumentierung spart Zeit."
+        },
+        {
+          "title": "Den langweiligen Pfad automatisieren",
+          "text": "Menschen sollten Absicht prüfen, nicht repetitive Deploy-Schritte klicken."
+        },
+        {
+          "title": "Für mein zukünftiges Ich schreiben",
+          "text": "Klare Doku und Runbooks schlagen perfektes Gedächtnis jedes Mal."
+        }
+      ]
+    },
+    "work": {
+      "title": "Wie ich von der Idee in Produktion gehe",
+      "mission_label": "Aktuelle Mission",
+      "mission_text": "Aufbau einer reproduzierbaren Cloud-Native-Basis, die lokale Entwicklung, Homelab-Infrastruktur und produktionsnahe Betriebsabläufe vereint.",
+      "step_prefix": "Schritt",
+      "steps": [
+        {
+          "title": "Entdecken",
+          "text": "Echte Probleme aus dem Tagesbetrieb sammeln und in konkrete technische Anforderungen übersetzen."
+        },
+        {
+          "title": "Entwerfen",
+          "text": "Die kleinste Architektur entwerfen, die Last, Incidents und Wartung realistisch aushält."
+        },
+        {
+          "title": "Liefern",
+          "text": "In dünnen Scheiben ausliefern, mit CI-Gates, kontrolliertem Rollout und sicherem Rollback."
+        },
+        {
+          "title": "Beobachten",
+          "text": "Latenz, Fehler und Kosten kontinuierlich messen und als Input für die nächste Iteration nutzen."
+        }
+      ]
+    }
+  },
+  "homelab": {
+    "title": "Homelab",
+    "description": "Meine persönliche Homelab-Einrichtung und Projekte"
+  },
+  "contact": {
+    "status": "Verfügbar für Möglichkeiten",
+    "email_label": "Email",
+    "email_url": "mailto:joshua.hoogstraat@icloud.com",
+    "github_label": "GitHub",
+    "github_url": "https://github.com/jhoogstraat",
+    "mastodon_label": "Mastodon",
+    "mastodon_url": "https://mastodon.social/@jhoogstraat",
+    "bluesky_label": "Bluesky",
+    "bluesky_url": "https://bsky.app/profile/jhoogstraat.bsky.social",
+    "x_label": "X",
+    "x_url": "https://x.com/jhoogstraat",
+    "linkedin_label": "LinkedIn",
+    "linkedin_url": "https://linkedin.com/in/jhoogstraat"
+  },
+  "terminal": {
+    "skills_cmd": "cat skills.txt",
+    "skills": "Go • Kubernetes • GitOps • Cloud-Native",
+    "hobbies_cmd": "cat hobbies.txt",
+    "hobbies": "Homelab • Open Source • Automatisierung",
+    "focus_cmd": "echo $CURRENT_FOCUS",
+    "focus": "bootc • Immutable Infrastructure • eBPF",
+    "hint": "Drücke ? für Tastenkürzel"
+  }
+}

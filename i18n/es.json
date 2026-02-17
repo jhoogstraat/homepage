@@ -1,141 +1,262 @@
 {
-  "description": "Ingeniero Full Stack construyendo aplicaciones web de alto rendimiento y herramientas para desarrolladores. Actualmente creando interfaces en Vercel",
+  "description": "Programador profesional creando soluciones de software elegantes",
   "nav": {
+    "home": "inicio",
+    "blog": "blog",
     "about": "sobre mí",
-    "projects": "proyectos",
-    "experience": "experiencia",
-    "contact": "contacto"
+    "uses": "usos",
+    "homelab": "homelab"
   },
   "hero": {
-    "title": "Ingeniero Full Stack",
-    "p1": "construyendo aplicaciones web de alto rendimiento y herramientas para desarrolladores. Actualmente creando interfaces en Vercel",
-    "p2": "Anteriormente lancé productos en Linear, Stripe y startups. Me importa el código limpio, la velocidad de carga y una UX detallada.",
-    "p3": "Cuando no estoy programando, contribuyo al código abierto, escribo sobre rendimiento web o exploro frameworks."
+    "title": "Programador Profesional",
+    "p1": "creando soluciones de software elegantes. Apasionado por el código limpio, la simplicidad y la experiencia del desarrollador.",
+    "p2": "Trabaja en todo el stack, desde diseño de sistemas hasta interfaces de usuario. Actualmente enfocado en tecnologías web y código abierto.",
+    "p3": "Siempre aprendiendo, siempre construyendo. Explorando nuevos lenguajes, frameworks y contribuyendo a la comunidad."
   },
-  "projects": {
-    "title": "Proyectos",
-    "item_1": {
-      "name": "hybrid-astro-ui",
-      "description": "Elementos de UI para Astro usando un modelo híbrido: Astro con cero JS + mejora progresiva con web components.",
-      "link": "https://github.com/JorgeRosbel/hybrid-astro-ui"
+  "blog": {
+    "title": "Blog",
+    "description": "Pensamientos sobre programación, diseño de software y tecnología"
+  },
+  "about": {
+    "title": "Sobre Mí",
+    "description": "Conoce más sobre mi trayectoria y enfoque hacia el desarrollo de software"
+  },
+  "uses": {
+    "title": "Usos",
+    "description": "Cómo trabajo, qué uso y en qué estoy construyendo ahora.",
+    "intro": "Este es el stack práctico detrás de mi trabajo diario: herramientas que confío, lecciones aprendidas en campo y experimentos actuales.",
+    "terminal_label": "perfil de operador // usos",
+    "terminal_hint": "Usa [ y ] para cambiar de vista • pulsa F para cambiar filtros del stack",
+    "tabs": {
+      "now": "Ahora",
+      "stack": "Stack",
+      "lessons": "Lecciones",
+      "work": "Trabajo"
     },
-    "item_2": {
-      "name": "http-sentinel",
-      "description": "Biblioteca TypeScript que proporciona un conjunto de utilidades y clases de error HTTP para su manejo eficiente.",
-      "link": "https://github.com/JorgeRosbel/http-sentinel"
+    "now": {
+      "title": "Qué tengo ahora en mi mesa",
+      "cards": [
+        {
+          "label": "Construyendo ahora",
+          "text": "Una plataforma personal para operaciones de homelab con entrega GitOps y actualizaciones de host inmutables basadas en imágenes."
+        },
+        {
+          "label": "Obsesión por la fiabilidad",
+          "text": "Bucles de feedback cortos: cada cambio debe ser observable, reproducible y fácil de revertir."
+        },
+        {
+          "label": "Bucle de aprendizaje",
+          "text": "Profundizando en eBPF y OpenTelemetry para entender el comportamiento más allá de dashboards y logs."
+        },
+        {
+          "label": "Regla personal",
+          "text": "Si una tarea se repite más de dos veces, la automatizo o la documento como runbook ejecutable."
+        }
+      ]
     },
-    "item_3": {
-      "name": "gitzen",
-      "description": "Herramienta CLI impulsada por IA para la generación automática de mensajes de commit en git.",
-      "link": "https://github.com/JorgeRosbel/gitzen"
+    "stack": {
+      "title": "Matriz de stack tecnológico",
+      "hint": "Filtra por dominio para ver lo que uso cada día.",
+      "filters": {
+        "all": "Todo",
+        "backend": "Backend",
+        "infra": "Infraestructura",
+        "tooling": "Herramientas",
+        "observability": "Observabilidad",
+        "frontend": "Frontend"
+      },
+      "badges": {
+        "daily": "Diario",
+        "active": "Activo",
+        "exploring": "Explorando"
+      },
+      "items": [
+        {
+          "name": "Go",
+          "category": "backend",
+          "level": "daily",
+          "role": "Lenguaje principal para servicios y automatización.",
+          "note": "Feedback rápido, tooling fuerte, binarios estáticos y rendimiento predecible."
+        },
+        {
+          "name": "TypeScript",
+          "category": "frontend",
+          "level": "daily",
+          "role": "Lenguaje puente para límites entre UI y API.",
+          "note": "Hace explícitas las interfaces y reduce errores en todo el stack."
+        },
+        {
+          "name": "Astro",
+          "category": "frontend",
+          "level": "active",
+          "role": "Framework para páginas orientadas a contenido y alto rendimiento.",
+          "note": "Runtime mínimo por defecto mantiene las páginas rápidas y mantenibles."
+        },
+        {
+          "name": "Tailwind CSS",
+          "category": "frontend",
+          "level": "daily",
+          "role": "Sistema de estilos para iterar rápido con límites claros.",
+          "note": "Mantiene un lenguaje visual consistente sin mucho CSS manual."
+        },
+        {
+          "name": "Kubernetes",
+          "category": "infra",
+          "level": "daily",
+          "role": "Plataforma principal para scheduling y operación de servicios.",
+          "note": "Trato los manifiestos como artefactos de producto, no solo archivos de despliegue."
+        },
+        {
+          "name": "FluxCD",
+          "category": "infra",
+          "level": "active",
+          "role": "Reconciliador GitOps para el estado del clúster.",
+          "note": "El estado deseado en Git da cambios más seguros y trazabilidad clara."
+        },
+        {
+          "name": "Terraform",
+          "category": "infra",
+          "level": "active",
+          "role": "Provisionamiento de infraestructura y baselines de entorno.",
+          "note": "Base declarativa para mantener entornos reproducibles."
+        },
+        {
+          "name": "GitHub Actions",
+          "category": "tooling",
+          "level": "daily",
+          "role": "Pipelines CI/CD y automatización.",
+          "note": "Los controles de calidad corren temprano para mantener producción estable."
+        },
+        {
+          "name": "Prometheus",
+          "category": "observability",
+          "level": "active",
+          "role": "Backbone de métricas para monitoreo orientado a SLO.",
+          "note": "Si no puedo medirlo, no confío en ello en producción."
+        },
+        {
+          "name": "Grafana",
+          "category": "observability",
+          "level": "active",
+          "role": "Visibilidad operativa y paneles de alertas.",
+          "note": "Los dashboards son para navegación, las alertas para acción."
+        },
+        {
+          "name": "OpenTelemetry",
+          "category": "observability",
+          "level": "exploring",
+          "role": "Estrategia unificada de instrumentación de trazas/métricas/logs.",
+          "note": "Construyendo convenciones compartidas de telemetría entre proyectos."
+        },
+        {
+          "name": "bootc",
+          "category": "infra",
+          "level": "exploring",
+          "role": "Ciclo de vida de hosts basado en imágenes para sistemas inmutables.",
+          "note": "Llevando la gestión de hosts al mismo nivel de disciplina que las apps."
+        },
+        {
+          "name": "Neovim",
+          "category": "tooling",
+          "level": "daily",
+          "role": "Entorno principal de edición.",
+          "note": "Flujos keyboard-first reducen fricción durante trabajo profundo."
+        },
+        {
+          "name": "Zed",
+          "category": "tooling",
+          "level": "active",
+          "role": "Editor secundario para pairing y cambios rápidos de contexto.",
+          "note": "Útil por velocidad, especialmente revisando código desconocido."
+        },
+        {
+          "name": "PostgreSQL",
+          "category": "backend",
+          "level": "daily",
+          "role": "Base de datos por defecto para cargas transaccionales.",
+          "note": "Confiable, estable y con muchas capacidades para sistemas reales."
+        },
+        {
+          "name": "Redis",
+          "category": "backend",
+          "level": "active",
+          "role": "Caché, colas y coordinación de baja latencia.",
+          "note": "Rinde mejor con uso intencional y reglas estrictas de expiración."
+        }
+      ]
     },
-    "item_4": {
-      "name": "NovaBoost",
-      "description": "Plantilla de blog gratuita para Astro 5 y TailwindCSS optimizada para SEO, con JSON-LD y generación de posts por IA.",
-      "link": "https://github.com/JorgeRosbel/NovaBoost"
+    "lessons": {
+      "title": "Lo que me enseñó el campo",
+      "items": [
+        {
+          "title": "Lo simple escala",
+          "text": "Los sistemas más resistentes suelen ser los más fáciles de explicar en una pizarra."
+        },
+        {
+          "title": "Observar antes de optimizar",
+          "text": "Gran parte del trabajo de rendimiento empieza con suposiciones incorrectas. La instrumentación ahorra tiempo."
+        },
+        {
+          "title": "Automatizar el camino aburrido",
+          "text": "Las personas deben revisar intención, no hacer clic en pasos repetitivos de despliegue."
+        },
+        {
+          "title": "Escribir para mi yo futuro",
+          "text": "Buena documentación y runbooks ganan siempre frente a la memoria perfecta."
+        }
+      ]
     },
-    "item_5": {
-      "name": "astro-i18n",
-      "description": "Biblioteca de internacionalización (i18n) simple para Astro con soporte completo para TypeScript.",
-      "link": "https://github.com/JorgeRosbel/astro-i18n"
-    },
-    "item_6": {
-      "name": "astro-collections",
-      "description": "Biblioteca de utilidades para Astro que proporciona componentes para una gestión sencilla de colecciones.",
-      "link": "https://github.com/JorgeRosbel/astro-collections"
-    },
-    "item_7": {
-      "name": "Geofisik Tool",
-      "description": "Aplicación web geofísica para monitorear desplazamientos verticales en estructuras con mapas interactivos y series temporales.",
-      "link": "https://tool.geofisik.com/"
-    },
-    "item_8": {
-      "name": "EmoteShowcase",
-      "description": "App web para redimensionar y visualizar emotes dinámicamente con previsualización en vivo y exportación optimizada.",
-      "link": "https://emoteshowcase.com/"
+    "work": {
+      "title": "Cómo paso de idea a producción",
+      "mission_label": "Misión actual",
+      "mission_text": "Construyendo una base cloud-native reproducible que unifique desarrollo local, infraestructura homelab y operación estilo producción.",
+      "step_prefix": "Paso",
+      "steps": [
+        {
+          "title": "Descubrir",
+          "text": "Recolectar dolores reales de operación diaria y convertirlos en restricciones técnicas concretas."
+        },
+        {
+          "title": "Diseñar",
+          "text": "Definir la arquitectura más pequeña que soporte tráfico real, incidentes y mantenimiento."
+        },
+        {
+          "title": "Entregar",
+          "text": "Publicar en incrementos pequeños con puertas de CI, despliegue progresivo y rollback seguro."
+        },
+        {
+          "title": "Observar",
+          "text": "Seguir latencia, errores y coste de forma continua, y usar esos datos en la siguiente iteración."
+        }
+      ]
     }
   },
-  "experience": {
-    "title": "Experiencia",
-    "item_1": {
-      "period": "2024 — presente",
-      "role": "Ingeniero Senior",
-      "company": "Vercel",
-      "description": "Construyendo la nube frontend. Trabajando en el dashboard, infraestructura de despliegue y experiencia de desarrollo."
-    },
-    "item_2": {
-      "period": "2022 — 2024",
-      "role": "Ingeniero de Software",
-      "company": "Linear",
-      "description": "Sincronización en tiempo real, interacciones centradas en el teclado y optimizaciones de rendimiento."
-    },
-    "item_3": {
-      "period": "2020 — 2022",
-      "role": "Desarrollador Full Stack",
-      "company": "Stripe",
-      "description": "Diseñé flujos de pago y paneles para comercios. Lideré la migración a React 18 y mejoré los pipelines de CI/CD."
-    },
-    "item_4": {
-      "period": "2018 — 2020",
-      "role": "Ingeniero Frontend",
-      "company": "Startup Temprana",
-      "description": "Primer empleado de ingeniería. Construí el producto principal desde cero utilizando Next.js y Tailwind CSS."
-    }
-  },
-  "skills": {
-    "heading": "Habilidades",
-    "react": {
-      "title": "React",
-      "category": "Lib",
-      "description": "UI Components, Hooks, State Management",
-      "experience_years": "4",
-      "experience_label": "años de experiencia"
-    },
-    "typescript": {
-      "title": "TypeScript",
-      "category": "Lenguaje",
-      "description": "Static Typing, Generics, Interfaces",
-      "experience_years": "3",
-      "experience_label": "años de experiencia"
-    },
-    "astro": {
-      "title": "Astro",
-      "category": "Framework",
-      "description": "Island Architecture, Static Site Generation",
-      "experience_years": "2",
-      "experience_label": "años de experiencia"
-    },
-    "tailwind": {
-      "title": "Tailwind CSS",
-      "category": "Diseño",
-      "description": "Utility-First CSS, Responsive Design",
-      "experience_years": "4",
-      "experience_label": "años de experiencia"
-    },
-    "nodejs": {
-      "title": "Node.js",
-      "category": "Backend",
-      "description": "REST APIs, Express, Authentication",
-      "experience_years": "3",
-      "experience_label": "años de experiencia"
-    },
-    "kali_linux": {
-      "title": "Kali Linux",
-      "category": "Seguridad",
-      "description": "Pentesting, SQL Injection, Network Auditing",
-      "experience_years": "1",
-      "experience_label": "año de experiencia"
-    }
+  "homelab": {
+    "title": "Homelab",
+    "description": "Mi configuración y proyectos de homelab personal"
   },
   "contact": {
-    "status": "Disponible para freelance/trabajo",
+    "status": "Disponible para oportunidades",
     "email_label": "Email",
-    "email_url": "mailto:tu@email.com",
+    "email_url": "mailto:joshua.hoogstraat@icloud.com",
     "github_label": "GitHub",
-    "github_url": "https://github.com/tu-usuario",
+    "github_url": "https://github.com/jhoogstraat",
+    "mastodon_label": "Mastodon",
+    "mastodon_url": "https://mastodon.social/@jhoogstraat",
+    "bluesky_label": "Bluesky",
+    "bluesky_url": "https://bsky.app/profile/jhoogstraat.bsky.social",
     "x_label": "X",
-    "x_url": "https://x.com/tu-usuario",
-    "linkedin_label": "Linkedin",
-    "linkedin_url": "https://linkedin.com/in/tu-perfil"
+    "x_url": "https://x.com/jhoogstraat",
+    "linkedin_label": "LinkedIn",
+    "linkedin_url": "https://linkedin.com/in/jhoogstraat"
+  },
+  "terminal": {
+    "skills_cmd": "cat skills.txt",
+    "skills": "Go • Kubernetes • GitOps • Cloud-Native",
+    "hobbies_cmd": "cat hobbies.txt",
+    "hobbies": "Homelab • Código Abierto • Automatización",
+    "focus_cmd": "echo $CURRENT_FOCUS",
+    "focus": "bootc • Infraestructura Inmutable • eBPF",
+    "hint": "Presiona ? para atajos"
   }
 }

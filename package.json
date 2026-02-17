@@ -4,10 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro-i18n-check --base en && astro build",
+    "build": "astro-i18n-check --base de && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check-sync": "astro-i18n-check --base en"
+    "check-sync": "astro-i18n-check --base de"
   },
   "dependencies": {
     "@ariaskit/astro-i18n": "^0.0.8",
