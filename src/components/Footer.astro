@@ -1,58 +1,111 @@
 ---
-type Option = { key:string; value:string }
+import { Mail, Github, Linkedin } from "@lucide/astro";
+import { useI18n } from "@ariaskit/astro-i18n";
+import { type LocaleSchema } from "@/src/types";
 
 interface Props {
-    status: Option 
-    id:string;
-    email_label?: Option ;
-    email_url?: Option ;
-    github_label?: Option ;
-    github_url?: Option ;
-    x_label?: Option ;
-    x_url?: Option ;
-    linkedin_label?: Option ;
-    linkedin_url?: Option;
+  locale: string;
 }
 
-const { status, email_label, email_url, github_label, github_url, x_label, x_url, linkedin_label, linkedin_url, id } = Astro.props as Props
+const { locale } = Astro.props as Props;
+
+// Get all translations at build time
+const locales = ["de", "en", "es"] as const;
+
+const translations = locales.map((loc) => {
+  const { t } = useI18n<LocaleSchema>({
+    ssg: {
+      // @ts-ignore
+      locale: loc,
+    },
+  });
+  
+  return {
+    locale: loc,
+    status: t("contact.status"),
+    email_label: t("contact.email_label"),
+    email_url: t("contact.email_url"),
+    github_label: t("contact.github_label"),
+    github_url: t("contact.github_url"),
+    mastodon_label: t("contact.mastodon_label"),
+    mastodon_url: t("contact.mastodon_url"),
+    bluesky_label: t("contact.bluesky_label"),
+    bluesky_url: t("contact.bluesky_url"),
+    linkedin_label: t("contact.linkedin_label"),
+    linkedin_url: t("contact.linkedin_url"),
+  };
+});
+
+const defaultTrans = translations.find(t => t.locale === locale) || translations[0];
 ---
 
 <footer
-    id={id}
-    class="my-24 border-t pt-8 text-sm grid grid-cols-1 gap-3 place-items-center"
+  class="my-24 border-t pt-8 text-sm grid grid-cols-1 gap-3 place-items-center"
+  data-lang-section
 >
-    <div>
+  {translations.map((trans) => (
+    <div class="lang-content" data-lang={trans.locale}>
+      <div class="flex items-center justify-center gap-2 w-full text-center">
         <span
-            class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"
+          class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"
         ></span>
-        <span class="opacity-70 uppercase">{status.value}</span>
-        <span
-            class="inline-block w-2 h-2 rounded-full bg-green-500 ml-2 animate-pulse"
-        ></span>
-    </div>
-    <div class="flex gap-4 [&_a]:opacity-70 [&_a]:hover:opacity-100 [&_a]:transition-colors [&_a]:duration-200">
-        {email_url && email_label && (
-            <a href={email_url.value}>
-                {email_label.value}
-            </a>
-        )}
-        
-        {github_url && github_label && (
-            <a href={github_url.value} rel="nofollow" >
-                {github_label.value}
-            </a>
-        )}
+        <span class="opacity-70 uppercase">{trans.status}</span>
+      </div>
+      <div class="flex justify-center flex-wrap gap-5 [&_a]:flex [&_a]:items-center [&_a]:gap-1.5 [&_a]:opacity-70 [&_a]:hover:opacity-100 [&_a]:transition-colors [&_a]:duration-200 [&_a]:focus-visible:outline-none [&_a]:focus-visible:ring-2 [&_a]:focus-visible:ring-ring [&_a]:focus-visible:ring-offset-2 [&_a]:focus-visible:ring-offset-background [&_a]:rounded">
+        <a href={trans.email_url}>
+          <Mail className="h-4 w-4" />
+          {trans.email_label}
+        </a>
 
-        {x_url && x_label && (
-            <a href={x_url.value} rel="nofollow" >
-                {x_label.value}
-            </a>
-        )}
+        <a href={trans.github_url} rel="nofollow">
+          <Github className="h-4 w-4" />
+          {trans.github_label}
+        </a>
 
-        {linkedin_url && linkedin_label && (
-            <a href={linkedin_url.value} rel="nofollow">
-                {linkedin_label.value}
-            </a>
-        )}
+        <a href={trans.mastodon_url} rel="nofollow">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.327 8.566c0-4.339-2.843-5.61-2.843-5.61-1.433-.658-3.894-.935-6.451-.956h-.063c-2.557.021-5.016.298-6.45.956 0 0-2.843 1.271-2.843 5.61 0 .993-.019 2.181.012 3.441.103 4.243.778 8.424 4.701 9.464 1.809.478 3.362.579 4.612.51 2.268-.126 3.541-.809 3.541-.809l-.075-1.646s-1.621.51-3.441.449c-1.804-.062-3.707-.194-3.999-2.407-.027-.214-.04-.434-.04-.662 0 0 1.755.43 3.98.532 1.361.062 2.635-.08 3.932-.236 2.483-.297 4.647-1.832 4.921-3.236.428-2.193.393-5.353.393-5.353zm-3.326 5.509h-2.037v-4.99c0-1.052-.443-1.587-1.327-1.587-.977 0-1.467.633-1.467 1.883v2.727h-2.023V9.38c0-1.25-.49-1.883-1.467-1.883-.884 0-1.327.535-1.327 1.588v4.99H6.327V8.456c0-1.053.268-1.888.804-2.506.553-.618 1.278-.934 2.176-.934 1.038 0 1.823.399 2.344 1.197l.505.849.505-.849c.521-.798 1.306-1.197 2.344-1.197.898 0 1.623.316 2.176.934.536.618.804 1.453.804 2.506v5.619z"/>
+          </svg>
+          {trans.mastodon_label}
+        </a>
+
+        <a href={trans.bluesky_url} rel="nofollow">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.558-.06 1.042-.173 1.434-.327-.009.078-.016.156-.022.234-.05.693-.088 1.424-.088 2.146 0 .723.038 1.453.088 2.146.006.078.013.156.022.234a7.58 7.58 0 0 1-1.434-.327c-2.67-.297-5.568.628-6.383 3.364-.246.829-.624 5.79-.624 6.479 0 .688.139 1.86.902 2.203.659.299 1.664.621 4.3-1.24 2.752-1.942 5.711-5.881 6.798-7.995 1.087 2.114 4.046 6.053 6.798 7.995 2.636 1.861 3.641 1.539 4.3 1.24.763-.343.902-1.515.902-2.203 0-.689-.378-5.65-.624-6.479-.815-2.736-3.713-3.66-6.383-3.364a7.58 7.58 0 0 1-1.434.327c.009-.078.016-.156.022-.234.05-.693.088-1.424.088-2.146 0-.723-.038-1.453-.088-2.146a6.89 6.89 0 0 0-.022-.234c.392.154.876.267 1.434.327 2.67.297 5.568-.628 6.383-3.364.246-.829.624-5.79.624-6.479 0-.688-.139-1.86-.902-2.203-.659-.299-1.664-.621-4.3 1.24-2.752 1.942-5.711 5.881-6.798 7.995z"/>
+          </svg>
+          {trans.bluesky_label}
+        </a>
+
+        <a href={trans.linkedin_url} rel="nofollow">
+          <Linkedin className="h-4 w-4" />
+          {trans.linkedin_label}
+        </a>
+      </div>
     </div>
+  ))}
 </footer>
+
+<style>
+  .lang-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+  }
+  
+  .lang-content.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

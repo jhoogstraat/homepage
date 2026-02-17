@@ -13,22 +13,22 @@ interface Props {
 const { name, title, p1, p2, p3 } = Astro.props as Props;
 ---
 
-<section id={name} class="mb-10 mt-50">
-    <h1 class="mb-4 font-semibold text-xl">{name}</h1>
-    <div class="[&_p]:mb-6 leading-7">
+<section id={name} class="mb-10">
+    <h1 class="mb-4 font-semibold text-3xl bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{name}</h1>
+    <div class="[&_p]:mb-6 leading-6 max-w-prose">
         <p>
             <I18NDebug key={title.key}>
-                <span class="text-green-500">{title.value} </span>
+                <span class="text-primary">{title.value} </span>
             </I18NDebug>
             <I18NDebug key={p1.key}>
-                <span class="opacity-50">{p1.value}</span>
+                <span class="opacity-65">{p1.value}</span>
             </I18NDebug>
         </p>
         <I18NDebug key={p2.key}>
-            <p class="opacity-50">{p2.value}</p>
+            <p class="opacity-65">{p2.value}</p>
         </I18NDebug>
         <I18NDebug key={p3.key}>
-            <p class="opacity-50">{p3.value}</p>
+            <p class="opacity-65">{p3.value}</p>
         </I18NDebug>
     </div>
 </section>

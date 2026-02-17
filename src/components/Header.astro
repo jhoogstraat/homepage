@@ -1,43 +1,100 @@
 ---
-import I18NDebug from "@ariaskit/astro-i18n/I18NDebug.astro";
-import { cls } from "@/src/lib/utils";
+import ThemeToggle from "./ThemeToggle.astro";
+import { useI18n } from "@ariaskit/astro-i18n";
+import { type LocaleSchema } from "@/src/types";
 
-type Locales = "es" | "en" | "pt"
+type Locales = "de" | "en" | "es"
 
 interface Props {
-    nav:{path:string;text:string}[];
     locales: Locales[];
-    currentLocale:string
+    currentLocale: string;
+    currentPath?: string;
 }
 
-const { nav, locales, currentLocale } = Astro.props as Props
+const { locales, currentLocale, currentPath = 'home' } = Astro.props as Props
 
+// Get all nav translations at build time
+const navTranslations = locales.map((loc) => {
+  const { t } = useI18n<LocaleSchema>({
+    ssg: {
+      // @ts-ignore
+      locale: loc,
+    },
+  });
+  
+  return {
+    locale: loc,
+    nav: [
+      { path: 'home', text: t("nav.home") },
+      { path: 'blog', text: t("nav.blog") },
+      { path: 'about', text: t("nav.about") },
+      { path: 'uses', text: t("nav.uses") },
+    ],
+  };
+});
+
+const defaultNav = navTranslations.find(n => n.locale === currentLocale)?.nav || navTranslations[0].nav;
+
+// Determine if a nav item is active
+const isActive = (path: string) => {
+    if (path === 'home' && (currentPath === 'home' || currentPath === '')) return true;
+    return path === currentPath;
+}
 ---
 
-<header class="py-15 flex items-center justify-between flex-col md:flex-row fixed top-0 left-1/2 -translate-x-1/2 bg-background z-40">
-    <div class="flex items-center gap-5 order-2 md:order-1">
-        {
-            nav.map((item) => (
-                <I18NDebug key={item.text}>
+<header class="py-4 flex items-center justify-between w-full max-w-2xl fixed top-0 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm z-40 border-b border-border/50" data-lang-section>
+    <div class="flex items-center gap-8">
+        {navTranslations.map((trans) => (
+            <div class="nav-lang-content" data-lang={trans.locale}>
+                {trans.nav.map((item) => (
                     <a
-                        class="opacity-50 transition-all duration-200 hover:opacity-100 text-[1rem] md:text-[0.85rem]"
-                        href={`/${currentLocale}/${item.path}`}
+                        data-nav-link
+                        data-link-locale={currentLocale}
+                        data-link-path={item.path}
+                        class={`text-sm uppercase tracking-wider transition-all duration-200 select-none relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background nav-link ${isActive(item.path) ? 'opacity-100 text-foreground font-semibold active' : 'opacity-50 hover:opacity-100'}`}
+                        href={`/${item.path === 'home' ? '' : item.path}`}
                     >
-                        {item.text}
+                        <span class="nav-text" data-nav-text={item.path}>{item.text}</span>
+                        <span class={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive(item.path) ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                     </a>
-                </I18NDebug>
-            ))
-        }
+                ))}
+            </div>
+        ))}
     </div>
-    <div class="order-1 md:order-2 mb-4 md:mb-0 space-x-2 md:space-x-0" >
-        {
-            locales.map(item =>
-                <a href={`/${item.toLowerCase()}`} class={cls("uppercase text-[1.2rem] md:text-[0.9rem] hover:opacity-100 cursor-pointer opacity-70 transition-all duration-200", item === currentLocale.toLowerCase() && "opacity-100")}>
-                    {item}
-                </a>
-                <span class="last:hidden opacity-50 text-[1.2rem] md:text-[0.9rem]">/</span>
-            )
-        }
+    
+    <div class="flex items-center gap-4">
+        <ThemeToggle />
+        
+        <div class="w-px h-4 bg-border"></div>
+        
+        <div class="flex gap-1 text-sm">
+            {
+                locales.map((item, index) => (
+                    <>
+                        <button 
+                            data-lang-switch
+                            data-switch-locale={item.toLowerCase()}
+                            class="uppercase transition-all duration-200 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded lang-switch opacity-50 hover:opacity-100"
+                        >
+                            {item}
+                        </button>
+                        {index < locales.length - 1 && <span class="opacity-30">/</span>}
+                    </>
+                ))
+            }
+        </div>
     </div>
-    <div class="absolute -bottom-10 left-0 w-full h-18  pointer-events-none bg-linear-to-b from-background via-background/80 to-background/20 z-10"></div>
 </header>
+
+<style>
+  .nav-lang-content {
+    display: none;
+  }
+  .nav-lang-content.active {
+    display: flex;
+    gap: 2rem;
+  }
+  .lang-switch.active {
+    opacity: 100 !important;
+  }
+</style>

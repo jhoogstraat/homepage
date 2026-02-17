@@ -1,0 +1,344 @@
+---
+import Layout from "@/src/layouts/Layout.astro";
+import Header from "@/src/components/Header.astro";
+import deLocale from "@/i18n/de.json";
+import enLocale from "@/i18n/en.json";
+import esLocale from "@/i18n/es.json";
+import { type LocaleSchema } from "@/src/types";
+
+const locales = ["de", "en", "es"] as const;
+type Locale = (typeof locales)[number];
+
+const localeMap: Record<Locale, LocaleSchema> = {
+  de: deLocale,
+  en: enLocale,
+  es: esLocale,
+};
+
+const tabOrder = ["now", "stack", "lessons", "work"] as const;
+const filterOrder = ["all", "backend", "infra", "tooling", "observability", "frontend"] as const;
+
+const translations = locales.map((locale) => {
+  const uses = localeMap[locale].uses;
+
+  return {
+    locale,
+    pageTitle: uses.title,
+    pageDescription: uses.description,
+    uses,
+  };
+});
+
+const defaultLocale = "de";
+const defaultTrans = translations.find((item) => item.locale === defaultLocale) || translations[0];
+---
+
+<Layout locale={defaultLocale} title={`Joshua Hoogstraat - ${defaultTrans.pageTitle}`} description={defaultTrans.pageDescription}>
+  <Header
+    locales={locales}
+    currentLocale={defaultLocale}
+    currentPath="uses"
+  />
+
+  <main class="min-h-screen flex flex-col pt-28 pb-20" data-lang-section>
+    {translations.map((trans) => (
+      <section class="lang-content" data-lang={trans.locale} data-uses-interactive>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{trans.pageTitle}</h1>
+        <p class="text-base opacity-70 max-w-2xl leading-relaxed mb-8">{trans.uses.intro}</p>
+
+        <div class="border border-border rounded-lg overflow-hidden mb-8">
+          <div class="px-3 py-2 bg-secondary/40 border-b border-border flex items-center justify-between gap-3">
+            <span class="text-xs uppercase tracking-wide opacity-60">{trans.uses.terminal_label}</span>
+            <span class="text-xs opacity-50 hidden md:inline">{trans.uses.terminal_hint}</span>
+          </div>
+          <div class="p-3 bg-secondary/20 flex flex-wrap gap-2">
+            {tabOrder.map((tab) => (
+              <button
+                type="button"
+                class="uses-tab-btn text-xs px-3 py-1.5 rounded border border-border opacity-75 transition-all"
+                data-tab-trigger={tab}
+              >
+                {trans.uses.tabs[tab]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div data-tab-panel="now" class="space-y-4">
+          <h2 class="uppercase text-sm tracking-wide opacity-55">{trans.uses.now.title}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {trans.uses.now.cards.map((card) => (
+              <article class="uses-surface border border-border rounded-lg p-4">
+                <p class="text-[0.7rem] uppercase tracking-wider opacity-55">{card.label}</p>
+                <p class="text-sm opacity-80 leading-relaxed mt-2">{card.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div data-tab-panel="stack" class="space-y-4 hidden">
+          <h2 class="uppercase text-sm tracking-wide opacity-55">{trans.uses.stack.title}</h2>
+          <p class="text-sm opacity-65">{trans.uses.stack.hint}</p>
+
+          <div class="flex flex-wrap gap-2">
+            {filterOrder.map((filter) => (
+              <button
+                type="button"
+                class="uses-filter-btn text-xs px-3 py-1.5 rounded border border-border opacity-75 transition-all"
+                data-filter-trigger={filter}
+              >
+                {trans.uses.stack.filters[filter]}
+              </button>
+            ))}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {trans.uses.stack.items.map((item) => (
+              <article class="uses-surface border border-border rounded-lg p-4" data-stack-item data-stack-category={item.category}>
+                <div class="flex items-start justify-between gap-3">
+                  <h3 class="font-semibold text-sm">{item.name}</h3>
+                  <span class={`uses-level uses-level-${item.level}`}>
+                    {trans.uses.stack.badges[item.level as keyof typeof trans.uses.stack.badges]}
+                  </span>
+                </div>
+
+                <p class="text-[0.7rem] uppercase tracking-wider opacity-55 mt-1">
+                  {trans.uses.stack.filters[item.category as keyof typeof trans.uses.stack.filters]}
+                </p>
+                <p class="text-sm opacity-80 mt-3 leading-relaxed">{item.role}</p>
+                <p class="text-xs opacity-60 mt-2 leading-relaxed">{item.note}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div data-tab-panel="lessons" class="space-y-4 hidden">
+          <h2 class="uppercase text-sm tracking-wide opacity-55">{trans.uses.lessons.title}</h2>
+
+          <div class="space-y-3">
+            {trans.uses.lessons.items.map((item, index) => (
+              <article class="uses-surface border border-border rounded-lg p-4">
+                <div class="flex items-start gap-4">
+                  <span class="text-xs opacity-45 mt-0.5">{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3 class="font-semibold text-sm">{item.title}</h3>
+                    <p class="text-sm opacity-75 mt-1 leading-relaxed">{item.text}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div data-tab-panel="work" class="space-y-4 hidden">
+          <h2 class="uppercase text-sm tracking-wide opacity-55">{trans.uses.work.title}</h2>
+
+          <article class="uses-surface border border-primary/30 rounded-lg p-4 bg-primary/5">
+            <p class="text-[0.7rem] uppercase tracking-wider text-primary/90">{trans.uses.work.mission_label}</p>
+            <p class="text-sm opacity-85 leading-relaxed mt-2">{trans.uses.work.mission_text}</p>
+          </article>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {trans.uses.work.steps.map((step, index) => (
+              <article class="uses-surface border border-border rounded-lg p-4">
+                <p class="text-[0.7rem] uppercase tracking-wider opacity-50">{trans.uses.work.step_prefix} {index + 1}</p>
+                <h3 class="font-semibold text-sm mt-1">{step.title}</h3>
+                <p class="text-sm opacity-75 mt-2 leading-relaxed">{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))}
+  </main>
+</Layout>
+
+<style>
+  .lang-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .lang-content.active {
+    display: block;
+  }
+
+  .uses-surface {
+    background: color-mix(in oklab, var(--secondary) 32%, transparent);
+    transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  }
+
+  .uses-surface:hover {
+    border-color: var(--primary);
+    background: color-mix(in oklab, var(--secondary) 48%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .uses-tab-btn.active {
+    opacity: 1;
+    border-color: var(--foreground);
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  .uses-filter-btn.active {
+    opacity: 1;
+    border-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in oklab, var(--secondary) 60%, transparent);
+  }
+
+  .uses-level {
+    font-size: 0.65rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.3rem 0.45rem;
+    white-space: nowrap;
+  }
+
+  .uses-level-daily {
+    border-color: rgb(34 197 94 / 0.45);
+    color: rgb(34 197 94);
+  }
+
+  .uses-level-active {
+    border-color: rgb(59 130 246 / 0.45);
+    color: rgb(59 130 246);
+  }
+
+  .uses-level-exploring {
+    border-color: rgb(234 179 8 / 0.45);
+    color: rgb(234 179 8);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  const tabSequence = ['now', 'stack', 'lessons', 'work'];
+  const filterSequence = ['all', 'backend', 'infra', 'tooling', 'observability', 'frontend'];
+
+  type UsesState = {
+    getTab: () => string;
+    setTab: (tab: string) => void;
+    getFilter: () => string;
+    setFilter: (filter: string) => void;
+  };
+
+  const sectionState = new WeakMap<HTMLElement, UsesState>();
+
+  function isInputFocused(): boolean {
+    const active = document.activeElement;
+    return active instanceof HTMLInputElement ||
+      active instanceof HTMLTextAreaElement ||
+      active?.getAttribute('contenteditable') === 'true';
+  }
+
+  function initSection(section: HTMLElement) {
+    if (sectionState.has(section)) return;
+
+    const tabButtons = Array.from(section.querySelectorAll<HTMLElement>('[data-tab-trigger]'));
+    const tabPanels = Array.from(section.querySelectorAll<HTMLElement>('[data-tab-panel]'));
+    const filterButtons = Array.from(section.querySelectorAll<HTMLElement>('[data-filter-trigger]'));
+    const stackItems = Array.from(section.querySelectorAll<HTMLElement>('[data-stack-item]'));
+
+    let currentTab = 'now';
+    let currentFilter = 'all';
+
+    function setTab(tab: string) {
+      currentTab = tabSequence.includes(tab) ? tab : 'now';
+
+      tabButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.tabTrigger === currentTab);
+      });
+
+      tabPanels.forEach((panel) => {
+        panel.classList.toggle('hidden', panel.dataset.tabPanel !== currentTab);
+      });
+    }
+
+    function setFilter(filter: string) {
+      currentFilter = filterSequence.includes(filter) ? filter : 'all';
+
+      filterButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.filterTrigger === currentFilter);
+      });
+
+      stackItems.forEach((item) => {
+        const category = item.dataset.stackCategory || 'all';
+        const visible = currentFilter === 'all' || category === currentFilter;
+        item.classList.toggle('hidden', !visible);
+      });
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => setTab(button.dataset.tabTrigger || 'now'));
+    });
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => setFilter(button.dataset.filterTrigger || 'all'));
+    });
+
+    setTab('now');
+    setFilter('all');
+
+    sectionState.set(section, {
+      getTab: () => currentTab,
+      setTab,
+      getFilter: () => currentFilter,
+      setFilter,
+    });
+  }
+
+  function initUsesPage() {
+    document.querySelectorAll<HTMLElement>('[data-uses-interactive]').forEach((section) => {
+      initSection(section);
+    });
+  }
+
+  function getActiveSection(): HTMLElement | null {
+    return document.querySelector<HTMLElement>('[data-uses-interactive].active');
+  }
+
+  initUsesPage();
+  window.addEventListener('languagechange', initUsesPage);
+
+  document.addEventListener('keydown', (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (isInputFocused()) return;
+
+    const section = getActiveSection();
+    if (!section) return;
+
+    const state = sectionState.get(section);
+    if (!state) return;
+
+    if (event.key === '[' || event.key === ']') {
+      const currentIndex = tabSequence.indexOf(state.getTab());
+      const delta = event.key === ']' ? 1 : -1;
+      const nextIndex = (currentIndex + delta + tabSequence.length) % tabSequence.length;
+      state.setTab(tabSequence[nextIndex]);
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key.toLowerCase() === 'f' && state.getTab() === 'stack') {
+      const currentIndex = filterSequence.indexOf(state.getFilter());
+      const nextIndex = (currentIndex + 1) % filterSequence.length;
+      state.setFilter(filterSequence[nextIndex]);
+      event.preventDefault();
+    }
+  });
+</script>

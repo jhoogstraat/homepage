@@ -1,3 +1,101 @@
 ---
-return Astro.redirect('/en');
+import Layout from "@/src/layouts/Layout.astro";
+import { useI18n } from "@ariaskit/astro-i18n";
+import { type LocaleSchema } from "@/src/types";
+import Header from "@/src/components/Header.astro";
+import Terminal from "@/src/components/Terminal.astro";
+import StatusMonitor from "@/src/components/StatusMonitor.astro";
+import NowPlaying from "@/src/components/NowPlaying.astro";
+import Weather from "@/src/components/Weather.astro";
+
+// Get all translations at build time
+const locales = ["de", "en", "es"] as const;
+
+const translations = locales.map((locale) => {
+  const { t } = useI18n<LocaleSchema>({
+    ssg: {
+      // @ts-ignore - this works at build time
+      locale,
+    },
+  });
+  
+  return {
+    locale,
+    nav: [
+      { path: `home`, text: t("nav.home") },
+      { path: `blog`, text: t("nav.blog") },
+      { path: `about`, text: t("nav.about") },
+      { path: `uses`, text: t("nav.uses") },
+    ],
+    description: t("description"),
+    hero: {
+      title: t("hero.title"),
+      p1: t("hero.p1"),
+    },
+  };
+});
+
+const defaultLocale = "de";
+const defaultTrans = translations.find((item) => item.locale === defaultLocale) || translations[0];
 ---
+
+<Layout locale={defaultLocale} title="Joshua Hoogstraat" description={defaultTrans.description}>
+  <Header 
+    locales={locales} 
+    currentLocale={defaultLocale} 
+    currentPath="home" 
+  />
+
+  <main class="min-h-screen flex flex-col pt-28 pb-20">
+    <!-- Hero Section -->
+    <section class="mb-12" data-lang-section>
+      {translations.map((trans) => (
+        <div class="lang-content" data-lang={trans.locale}>
+          <h1 class="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+            Joshua Hoogstraat
+          </h1>
+          <p class="text-xl md:text-2xl text-primary font-medium mb-4">
+            {trans.hero.title}
+          </p>
+          <p class="text-base opacity-60 max-w-lg leading-relaxed">
+            {trans.hero.p1}
+          </p>
+        </div>
+      ))}
+    </section>
+
+    <!-- Terminal -->
+    <Terminal />
+
+    <!-- Status Widgets Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 items-start">
+      <StatusMonitor />
+      <div class="grid gap-4">
+        <NowPlaying />
+        <Weather />
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .lang-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+  }
+  
+  .lang-content.active {
+    display: block;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

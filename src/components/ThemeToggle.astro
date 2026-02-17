@@ -1,0 +1,42 @@
+---
+import { Moon, Sun } from "@lucide/astro";
+---
+
+<button
+    id="theme-toggle"
+    class="p-2 rounded-lg transition-all duration-300 hover:bg-secondary hover:scale-110 active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    aria-label="Toggle theme"
+>
+    <Sun className="h-5 w-5 hidden dark:block transition-transform duration-300" />
+    <Moon className="h-5 w-5 block dark:hidden transition-transform duration-300" />
+</button>
+
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // Check for saved theme preference or default to system preference
+    const getThemePreference = () => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+            return localStorage.getItem('theme');
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    
+    const setTheme = (theme: string) => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('theme', theme);
+    };
+    
+    // Set initial theme
+    setTheme(getThemePreference() || 'dark');
+    
+    // Toggle theme on click
+    themeToggle?.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        setTheme(isDark ? 'light' : 'dark');
+    });
+</script>

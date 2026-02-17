@@ -1,0 +1,84 @@
+---
+// Shared language runtime for all pages
+---
+
+<script>
+  const LOCALE_KEY = 'user-locale';
+  const DEFAULT_LOCALE = 'de';
+  const SUPPORTED_LOCALES = ['de', 'en', 'es'];
+
+  function getStoredLocale(): string {
+    const stored = localStorage.getItem(LOCALE_KEY);
+    if (stored && SUPPORTED_LOCALES.includes(stored)) {
+      return stored;
+    }
+
+    const browserLang = navigator.language.split('-')[0];
+    if (SUPPORTED_LOCALES.includes(browserLang)) {
+      return browserLang;
+    }
+
+    return DEFAULT_LOCALE;
+  }
+
+  function applyLanguage(locale: string): string {
+    const target = SUPPORTED_LOCALES.includes(locale) ? locale : DEFAULT_LOCALE;
+    localStorage.setItem(LOCALE_KEY, target);
+    document.documentElement.lang = target;
+
+    document.querySelectorAll('[data-lang-section]').forEach((section) => {
+      section.querySelectorAll('.lang-content').forEach((content) => {
+        const contentLang = content.getAttribute('data-lang');
+        content.classList.toggle('active', contentLang === target);
+      });
+    });
+
+    document.querySelectorAll('.nav-lang-content').forEach((content) => {
+      const contentLang = content.getAttribute('data-lang');
+      content.classList.toggle('active', contentLang === target);
+    });
+
+    document.querySelectorAll('[data-lang-switch]').forEach((btn) => {
+      const btnLocale = btn.getAttribute('data-switch-locale');
+      btn.classList.toggle('active', btnLocale === target);
+    });
+
+    document.querySelectorAll('[data-nav-link]').forEach((link) => {
+      const linkPath = link.getAttribute('data-link-path');
+      (link as HTMLAnchorElement).href = `/${linkPath === 'home' ? '' : linkPath}`;
+    });
+
+    return target;
+  }
+
+  function setSiteLanguage(locale: string, dispatchEvent = true) {
+    const target = applyLanguage(locale);
+
+    if (dispatchEvent) {
+      window.dispatchEvent(new CustomEvent('languagechange', { detail: { locale: target } }));
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    const switchBtn = target?.closest('[data-lang-switch]') as HTMLElement | null;
+    if (!switchBtn) return;
+
+    const locale = switchBtn.getAttribute('data-switch-locale');
+    if (!locale) return;
+
+    event.preventDefault();
+    setSiteLanguage(locale);
+  });
+
+  window.addEventListener('languagechange', (event: Event) => {
+    const customEvent = event as CustomEvent<{ locale?: string }>;
+    const locale = customEvent.detail?.locale;
+    if (!locale) return;
+    setSiteLanguage(locale, false);
+  });
+
+  (window as any).setSiteLanguage = (locale: string) => setSiteLanguage(locale, true);
+
+  setSiteLanguage(getStoredLocale(), false);
+</script>

@@ -1,0 +1,270 @@
+---
+// Kubernetes/k9s-inspired background with terminal ASCII art
+---
+
+<div class="k8s-background" aria-hidden="true">
+  <!-- Pod status indicators -->
+  <div class="k8s-element pod-running k8s-slow" style="top: 10%; left: 5%;">●</div>
+  <div class="k8s-element pod-pending k8s-fast" style="top: 25%; left: 85%;">◐</div>
+  <div class="k8s-element pod-running" style="top: 45%; left: 12%;">●</div>
+  <div class="k8s-element pod-succeeded k8s-slow" style="top: 70%; left: 90%;">○</div>
+  <div class="k8s-element pod-running k8s-fast" style="top: 85%; left: 25%;">●</div>
+
+  <!-- Container/Node indicators -->
+  <div class="k8s-element container k8s-slow" style="top: 15%; left: 75%;">⬡</div>
+  <div class="k8s-element container" style="top: 60%; left: 8%;">⬢</div>
+  <div class="k8s-element node k8s-fast" style="top: 35%; left: 92%;">▣</div>
+  <div class="k8s-element node k8s-slow" style="top: 80%; left: 50%;">▢</div>
+
+  <!-- Resource labels -->
+  <div class="k8s-text" style="top: 20%; left: 15%;">pod/nginx-deploy-7d6c9b</div>
+  <div class="k8s-text k8s-slow" style="top: 55%; left: 80%;">svc/frontend</div>
+  <div class="k8s-text" style="top: 75%; left: 20%;">deploy/api-server</div>
+  <div class="k8s-text k8s-fast" style="top: 40%; left: 70%;">node/worker-01</div>
+
+  <!-- Status text -->
+  <div class="k8s-status status-running" style="top: 30%; left: 60%;">Running</div>
+  <div class="k8s-status status-ready k8s-slow" style="top: 65%; left: 35%;">Ready</div>
+  <div class="k8s-status status-creating k8s-fast" style="top: 90%; left: 75%;">ContainerCreating</div>
+
+  <!-- Terminal borders -->
+  <div class="k8s-terminal" style="top: 12%; left: 45%;">┌─┐</div>
+  <div class="k8s-terminal k8s-slow" style="top: 48%; left: 25%;">││</div>
+  <div class="k8s-terminal" style="top: 78%; left: 65%;">└─┘</div>
+
+  <!-- Cluster topology lines -->
+  <div class="k8s-line k8s-slow" style="top: 22%; left: 30%; width: 40px;"></div>
+  <div class="k8s-line" style="top: 52%; left: 55%; width: 60px;"></div>
+  <div class="k8s-line k8s-fast" style="top: 82%; left: 40%; width: 50px;"></div>
+</div>
+
+<style>
+  .k8s-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+    font-family: monospace;
+  }
+  
+  .k8s-element {
+    position: absolute;
+    font-size: 24px;
+    opacity: 0.12;
+    animation: float 30s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .k8s-slow {
+    animation-name: float-slow;
+    animation-duration: 50s;
+  }
+
+  .k8s-fast {
+    animation-name: float-fast;
+    animation-duration: 20s;
+  }
+  
+  .k8s-element.pod-running {
+    color: oklch(45% 0.15 270);
+  }
+  
+  .k8s-element.pod-pending {
+    color: oklch(65% 0.15 85);
+  }
+  
+  .k8s-element.pod-succeeded {
+    color: oklch(55% 0.18 145);
+  }
+  
+  .k8s-element.container {
+    color: oklch(50% 0.12 250);
+  }
+  
+  .k8s-element.node {
+    color: oklch(45% 0.14 30);
+  }
+  
+  .k8s-text {
+    position: absolute;
+    font-size: 11px;
+    opacity: 0.08;
+    color: oklch(30% 0.02 285);
+    animation: float 40s ease-in-out infinite;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .k8s-text.k8s-slow {
+    animation-duration: 60s;
+  }
+
+  .k8s-text.k8s-fast {
+    animation-duration: 25s;
+  }
+
+  .k8s-status {
+    position: absolute;
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0.10;
+    animation: float 45s ease-in-out infinite;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .k8s-status.k8s-slow {
+    animation-duration: 65s;
+  }
+
+  .k8s-status.k8s-fast {
+    animation-duration: 30s;
+  }
+  
+  .k8s-status.status-running {
+    color: oklch(45% 0.18 145);
+  }
+  
+  .k8s-status.status-ready {
+    color: oklch(50% 0.15 250);
+  }
+  
+  .k8s-status.status-creating {
+    color: oklch(55% 0.15 85);
+  }
+  
+  .k8s-terminal {
+    position: absolute;
+    font-size: 16px;
+    opacity: 0.06;
+    color: oklch(30% 0.02 285);
+    animation: float 35s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .k8s-terminal.k8s-slow {
+    animation-duration: 55s;
+  }
+
+  .k8s-terminal.k8s-fast {
+    animation-duration: 20s;
+  }
+
+  .k8s-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, oklch(45% 0.15 270), transparent);
+    opacity: 0.08;
+    animation: float 50s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .k8s-line.k8s-slow {
+    animation-duration: 70s;
+  }
+
+  .k8s-line.k8s-fast {
+    animation-duration: 35s;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+    }
+    33% {
+      transform: translateY(-15px) translateX(10px);
+    }
+    66% {
+      transform: translateY(8px) translateX(-8px);
+    }
+  }
+
+  @keyframes float-slow {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+    }
+    50% {
+      transform: translateY(-20px) translateX(15px);
+    }
+  }
+
+  @keyframes float-fast {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+    }
+    25% {
+      transform: translateY(-10px) translateX(5px);
+    }
+    75% {
+      transform: translateY(5px) translateX(-5px);
+    }
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .k8s-element,
+    .k8s-text,
+    .k8s-status,
+    .k8s-terminal,
+    .k8s-line {
+      animation: none;
+    }
+  }
+  
+  /* Dark mode adjustments */
+  :global(.dark) .k8s-element {
+    opacity: 0.08;
+  }
+  
+  :global(.dark) .k8s-text {
+    opacity: 0.06;
+    color: oklch(94% 0.008 285);
+  }
+  
+  :global(.dark) .k8s-status {
+    opacity: 0.07;
+  }
+  
+  :global(.dark) .k8s-terminal {
+    opacity: 0.05;
+    color: oklch(94% 0.008 285);
+  }
+  
+  :global(.dark) .k8s-line {
+    opacity: 0.06;
+  }
+  
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .k8s-element {
+      font-size: 18px;
+      opacity: 0.10;
+    }
+
+    .k8s-text {
+      font-size: 9px;
+      opacity: 0.06;
+    }
+
+    .k8s-status {
+      font-size: 8px;
+      opacity: 0.08;
+    }
+
+    :global(.dark) .k8s-element {
+      opacity: 0.06;
+    }
+
+    :global(.dark) .k8s-text {
+      opacity: 0.05;
+    }
+
+    :global(.dark) .k8s-status {
+      opacity: 0.05;
+    }
+  }
+</style>

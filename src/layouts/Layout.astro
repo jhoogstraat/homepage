@@ -1,33 +1,61 @@
 ---
 import { PageMetadata } from "@/src/components/hybrid-astro-ui/page-metadata";
 import OGImage from "@/src/assets/background.png"
+import KubernetesBackground from "@/src/components/KubernetesBackground.astro";
+import Footer from "@/src/components/Footer.astro";
+import KeyboardShortcuts from "@/src/components/KeyboardShortcuts.astro";
+import LanguageRuntime from "@/src/components/LanguageRuntime.astro";
 
 interface Props {
 	title: string;
 	description: string;
-	locale: string;
+	locale?: string;
 	alternateLinks?: { href: string; hreflang: string }[];
 }
 
-const { title, description, locale, alternateLinks } =
+const { title, description, locale = "de", alternateLinks } =
 	Astro.props as Props;
 ---
 
-<!doctype html>
-<html lang={locale} class="dark">
+<!doctype html lang={locale}>
 	<head>
 		<PageMetadata
 			lang={locale}
 			title={title}
 			description={description}
 			image={OGImage}
-			enableClientRouter
+			enableClientRouter={false}
 			ogType="website"
 			favicons={[  { rel: "icon", type: "image/png", href: "/icon.png", sizes: "32x32" },]}
 			alternateLinks={alternateLinks}
 		/>
+		<script is:inline>
+			// Set initial theme before page renders to avoid flash
+			const theme = localStorage.getItem('theme') || 
+				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			if (theme === 'dark') {
+				document.documentElement.classList.add('dark');
+			}
+			
+			// Set initial language from localStorage or browser preference
+			const storedLocale = localStorage.getItem('user-locale');
+			const browserLang = navigator.language.split('-')[0];
+			const supportedLangs = ['de', 'en', 'es'];
+			
+			const targetLang = storedLocale || (supportedLangs.includes(browserLang) ? browserLang : 'de');
+			
+			if (targetLang !== storedLocale) {
+				localStorage.setItem('user-locale', targetLang);
+			}
+			
+			document.documentElement.lang = targetLang;
+		</script>
 	</head>
-	<body class="*:max-w-2xl *:w-full flex flex-col  items-center w-full font-mono px-5 md:px-0 leading-7" >
+	<body class="*:max-w-2xl *:w-full flex flex-col items-center w-full font-mono px-5 md:px-0 leading-7">
+		<KubernetesBackground />
 		<slot />
+		<Footer locale={locale} />
+		<LanguageRuntime />
+		<KeyboardShortcuts />
 	</body>
 </html>

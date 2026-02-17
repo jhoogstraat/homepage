@@ -1,59 +1,56 @@
 @import "tailwindcss";
 
-
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(98.8% 0.006 290);
-  --foreground: oklch(17% 0.018 285);
+  --background: oklch(98.5% 0.005 280);
+  --foreground: oklch(15% 0.02 285);
 
-  --primary: oklch(50% 0.17 270);
-  --primary-foreground: oklch(98.5% 0.004 270);
+  --primary: oklch(45% 0.15 270);
+  --primary-foreground: oklch(98% 0.003 270);
 
-  --secondary: oklch(96% 0.01 285);
-  --secondary-foreground: oklch(26% 0.02 285);
+  --secondary: oklch(95% 0.008 285);
+  --secondary-foreground: oklch(25% 0.015 285);
 
-  --muted: oklch(94% 0.012 285);
-  --muted-foreground: oklch(52% 0.018 285);
+  --muted: oklch(92% 0.01 285);
+  --muted-foreground: oklch(50% 0.015 285);
 
-  --accent: oklch(92% 0.09 85);
-  --accent-foreground: oklch(24% 0.05 85);
+  --accent: oklch(88% 0.07 85);
+  --accent-foreground: oklch(22% 0.04 85);
 
-  --border: oklch(88% 0.012 285);
-  --input: oklch(90% 0.012 285);
-  --ring: oklch(50% 0.17 270);
+  --border: oklch(86% 0.01 285);
+  --input: oklch(88% 0.01 285);
+  --ring: oklch(45% 0.15 270);
 
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
-  --destructive: oklch(58% 0.21 25);
-  --destructive-foreground: oklch(98% 0.004 25);
+  --destructive: oklch(55% 0.18 25);
+  --destructive-foreground: oklch(98% 0.003 25);
 }
 
 .dark {
-  --background: oklch(14% 0.012 285);
-  --foreground: oklch(96% 0.01 285);
+  --background: oklch(18% 0.015 285);
+  --foreground: oklch(94% 0.008 285);
 
-  --primary: oklch(64% 0.18 270);
-  --primary-foreground: oklch(14% 0.01 270);
+  --primary: oklch(68% 0.16 270);
+  --primary-foreground: oklch(18% 0.008 270);
 
-  --secondary: oklch(22% 0.016 285);
-  --secondary-foreground: oklch(94% 0.012 285);
+  --secondary: oklch(26% 0.012 285);
+  --secondary-foreground: oklch(92% 0.01 285);
 
-  --muted: oklch(20% 0.014 285);
-  --muted-foreground: oklch(62% 0.02 285);
+  --muted: oklch(24% 0.01 285);
+  --muted-foreground: oklch(60% 0.015 285);
 
-  --accent: oklch(32% 0.09 85);
-  --accent-foreground: oklch(96% 0.01 85);
+  --accent: oklch(36% 0.07 85);
+  --accent-foreground: oklch(94% 0.008 85);
 
-  --border: oklch(28% 0.016 285);
-  --input: oklch(26% 0.016 285);
-  --ring: oklch(70% 0.18 270);
+  --border: oklch(32% 0.012 285);
+  --input: oklch(30% 0.012 285);
+  --ring: oklch(68% 0.16 270);
 
-  --destructive: oklch(48% 0.19 25);
-  --destructive-foreground: oklch(96% 0.008 25);
+  --destructive: oklch(45% 0.17 25);
+  --destructive-foreground: oklch(94% 0.006 25);
 }
-
 
 @theme inline {
   --color-background: var(--background);
@@ -93,7 +90,28 @@
   }
 }
 
-
 html {
   scroll-behavior: smooth;
+}
+
+/* Remove focus outline for mouse users, keep for keyboard navigation */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Default focus-visible styles for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Text selection highlight */
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+::-moz-selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
 }

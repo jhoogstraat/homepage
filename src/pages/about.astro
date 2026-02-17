@@ -1,0 +1,71 @@
+---
+import Layout from "@/src/layouts/Layout.astro";
+import Header from "@/src/components/Header.astro";
+import { useI18n } from "@ariaskit/astro-i18n";
+import { type LocaleSchema } from "@/src/types";
+
+const locales = ["de", "en", "es"] as const;
+
+const translations = locales.map((locale) => {
+  const { t } = useI18n<LocaleSchema>({
+    ssg: {
+      // @ts-ignore
+      locale,
+    },
+  });
+
+  return {
+    locale,
+    pageTitle: t("about.title"),
+    pageDescription: t("about.description"),
+    body1: t("hero.p2"),
+    body2: t("hero.p3"),
+  };
+});
+
+const defaultLocale = "de";
+const defaultTrans = translations.find((item) => item.locale === defaultLocale) || translations[0];
+---
+
+<Layout locale={defaultLocale} title={`Joshua Hoogstraat - ${defaultTrans.pageTitle}`} description={defaultTrans.pageDescription}>
+  <Header
+    locales={locales}
+    currentLocale={defaultLocale}
+    currentPath="about"
+  />
+
+  <main class="min-h-screen flex flex-col pt-28 pb-20" data-lang-section>
+    {translations.map((trans) => (
+      <section class="lang-content" data-lang={trans.locale}>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{trans.pageTitle}</h1>
+        <p class="text-base opacity-70 max-w-2xl leading-relaxed mb-8">{trans.pageDescription}</p>
+        <div class="space-y-5 max-w-2xl">
+          <p class="opacity-70 leading-relaxed">{trans.body1}</p>
+          <p class="opacity-70 leading-relaxed">{trans.body2}</p>
+        </div>
+      </section>
+    ))}
+  </main>
+</Layout>
+
+<style>
+  .lang-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .lang-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
