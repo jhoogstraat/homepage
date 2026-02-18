@@ -1,11 +1,442 @@
 ---
 import Layout from "@/src/layouts/Layout.astro";
 import Header from "@/src/components/Header.astro";
-import StatusMonitor from "@/src/components/StatusMonitor.astro";
 import { useI18n } from "@ariaskit/astro-i18n";
 import { type LocaleSchema } from "@/src/types";
 
 const locales = ["de", "en", "es"] as const;
+type Locale = (typeof locales)[number];
+
+type Status = "running" | "degraded" | "exited" | "pending";
+
+type Copy = {
+  intro: string;
+  badges: {
+    readonly: string;
+    mock: string;
+  };
+  toolbar: {
+    source: string;
+    sourceValue: string;
+    refresh: string;
+    lastSync: string;
+  };
+  cards: {
+    hosts: string;
+    hostsSub: string;
+    containers: string;
+    containersSub: string;
+    pods: string;
+    podsSub: string;
+    alerts: string;
+    alertsSub: string;
+  };
+  hardware: {
+    title: string;
+    subtitle: string;
+  };
+  runtime: {
+    title: string;
+    subtitle: string;
+    tabs: {
+      containers: string;
+      pods: string;
+    };
+    filters: {
+      all: string;
+      running: string;
+      degraded: string;
+      exited: string;
+      pending: string;
+    };
+    searchPlaceholder: string;
+    empty: string;
+    statusLabels: Record<Status, string>;
+    containersHead: {
+      name: string;
+      image: string;
+      status: string;
+      cpu: string;
+      memory: string;
+      uptime: string;
+    };
+    podsHead: {
+      name: string;
+      status: string;
+      containers: string;
+      cpu: string;
+      memory: string;
+      uptime: string;
+    };
+  };
+  note: {
+    title: string;
+    text: string;
+  };
+};
+
+type MetricTemplate = {
+  id: string;
+  value: number;
+  unit: string;
+  trend: string;
+  labels: Record<Locale, string>;
+};
+
+type RuntimeRow = {
+  type: "containers" | "pods";
+  name: string;
+  image?: string;
+  status: Status;
+  containers?: number;
+  cpu: string;
+  memory: string;
+  uptime: string;
+};
+
+const copyByLocale: Record<Locale, Copy> = {
+  de: {
+    intro: "Read-only Monitoring-Ansicht mit Mock-Daten fur Hardware, Podman-Container und Pods. Das Layout ist produktionsnah, die Werte sind bewusst simuliert.",
+    badges: {
+      readonly: "read-only",
+      mock: "mock telemetry",
+    },
+    toolbar: {
+      source: "Quelle",
+      sourceValue: "lokaler Snapshot",
+      refresh: "Tick simulieren",
+      lastSync: "Letzter Sync",
+    },
+    cards: {
+      hosts: "Hosts",
+      hostsSub: "3 online",
+      containers: "Container",
+      containersSub: "16/18 healthy",
+      pods: "Pods",
+      podsSub: "8/9 running",
+      alerts: "Alerts",
+      alertsSub: "1 warning",
+    },
+    hardware: {
+      title: "Hardware-Monitoring",
+      subtitle: "CPU, RAM, Disk und Temperatur auf Node-Ebene.",
+    },
+    runtime: {
+      title: "Podman Runtime",
+      subtitle: "Read-only Zustand von Containern und Pods mit aktuellen Stats.",
+      tabs: {
+        containers: "Container",
+        pods: "Pods",
+      },
+      filters: {
+        all: "Alle",
+        running: "Running",
+        degraded: "Degraded",
+        exited: "Exited",
+        pending: "Pending",
+      },
+      searchPlaceholder: "Nach Name filtern...",
+      empty: "Keine Eintrage fur den aktuellen Filter.",
+      statusLabels: {
+        running: "Running",
+        degraded: "Degraded",
+        exited: "Exited",
+        pending: "Pending",
+      },
+      containersHead: {
+        name: "Container",
+        image: "Image",
+        status: "Status",
+        cpu: "CPU",
+        memory: "RAM",
+        uptime: "Uptime",
+      },
+      podsHead: {
+        name: "Pod",
+        status: "Status",
+        containers: "Container",
+        cpu: "CPU",
+        memory: "RAM",
+        uptime: "Uptime",
+      },
+    },
+    note: {
+      title: "Public-safe Mode",
+      text: "Nur demonstrative Read-only Daten ohne interne IPs, Secrets, Ports oder Control-Endpunkte.",
+    },
+  },
+  en: {
+    intro: "Read-only monitoring view with mock hardware, Podman container, and pod telemetry. The interface is production-shaped while values stay simulated.",
+    badges: {
+      readonly: "read-only",
+      mock: "mock telemetry",
+    },
+    toolbar: {
+      source: "Source",
+      sourceValue: "local snapshot",
+      refresh: "Simulate tick",
+      lastSync: "Last sync",
+    },
+    cards: {
+      hosts: "Hosts",
+      hostsSub: "3 online",
+      containers: "Containers",
+      containersSub: "16/18 healthy",
+      pods: "Pods",
+      podsSub: "8/9 running",
+      alerts: "Alerts",
+      alertsSub: "1 warning",
+    },
+    hardware: {
+      title: "Hardware Monitoring",
+      subtitle: "Node-level CPU, memory, disk and thermal telemetry.",
+    },
+    runtime: {
+      title: "Podman Runtime",
+      subtitle: "Read-only runtime view of containers and pods with current stats.",
+      tabs: {
+        containers: "Containers",
+        pods: "Pods",
+      },
+      filters: {
+        all: "All",
+        running: "Running",
+        degraded: "Degraded",
+        exited: "Exited",
+        pending: "Pending",
+      },
+      searchPlaceholder: "Filter by name...",
+      empty: "No entries match the current filter.",
+      statusLabels: {
+        running: "Running",
+        degraded: "Degraded",
+        exited: "Exited",
+        pending: "Pending",
+      },
+      containersHead: {
+        name: "Container",
+        image: "Image",
+        status: "Status",
+        cpu: "CPU",
+        memory: "Mem",
+        uptime: "Uptime",
+      },
+      podsHead: {
+        name: "Pod",
+        status: "Status",
+        containers: "Containers",
+        cpu: "CPU",
+        memory: "Mem",
+        uptime: "Uptime",
+      },
+    },
+    note: {
+      title: "Public-safe Mode",
+      text: "Demonstration-only read telemetry: no private IPs, secrets, ports, or control endpoints are exposed.",
+    },
+  },
+  es: {
+    intro: "Vista de monitoreo de solo lectura con telemetria simulada de hardware, contenedores Podman y pods. La interfaz refleja produccion, pero los valores son mock.",
+    badges: {
+      readonly: "solo lectura",
+      mock: "telemetria mock",
+    },
+    toolbar: {
+      source: "Fuente",
+      sourceValue: "snapshot local",
+      refresh: "Simular tick",
+      lastSync: "Ultimo sync",
+    },
+    cards: {
+      hosts: "Hosts",
+      hostsSub: "3 en linea",
+      containers: "Contenedores",
+      containersSub: "16/18 healthy",
+      pods: "Pods",
+      podsSub: "8/9 running",
+      alerts: "Alertas",
+      alertsSub: "1 warning",
+    },
+    hardware: {
+      title: "Monitoreo de Hardware",
+      subtitle: "Telemetria por nodo de CPU, memoria, disco y temperatura.",
+    },
+    runtime: {
+      title: "Runtime Podman",
+      subtitle: "Vista de solo lectura para contenedores y pods con stats actuales.",
+      tabs: {
+        containers: "Contenedores",
+        pods: "Pods",
+      },
+      filters: {
+        all: "Todos",
+        running: "Running",
+        degraded: "Degraded",
+        exited: "Exited",
+        pending: "Pending",
+      },
+      searchPlaceholder: "Filtrar por nombre...",
+      empty: "No hay entradas para el filtro actual.",
+      statusLabels: {
+        running: "Running",
+        degraded: "Degraded",
+        exited: "Exited",
+        pending: "Pending",
+      },
+      containersHead: {
+        name: "Contenedor",
+        image: "Image",
+        status: "Estado",
+        cpu: "CPU",
+        memory: "Mem",
+        uptime: "Uptime",
+      },
+      podsHead: {
+        name: "Pod",
+        status: "Estado",
+        containers: "Cont.",
+        cpu: "CPU",
+        memory: "Mem",
+        uptime: "Uptime",
+      },
+    },
+    note: {
+      title: "Modo Public-safe",
+      text: "Solo telemetria de demostracion: sin IPs privadas, secretos, puertos o endpoints de control.",
+    },
+  },
+};
+
+const metricTemplates: MetricTemplate[] = [
+  {
+    id: "cpu",
+    value: 34,
+    unit: "%",
+    trend: "▁▂▃▅▄▆▅▃",
+    labels: {
+      de: "CPU Load",
+      en: "CPU Load",
+      es: "Carga CPU",
+    },
+  },
+  {
+    id: "memory",
+    value: 62,
+    unit: "%",
+    trend: "▂▃▄▅▆▆▅▄",
+    labels: {
+      de: "Memory Usage",
+      en: "Memory Usage",
+      es: "Uso de Memoria",
+    },
+  },
+  {
+    id: "disk",
+    value: 48,
+    unit: "%",
+    trend: "▁▁▂▂▃▃▄▅",
+    labels: {
+      de: "Disk IO",
+      en: "Disk IO",
+      es: "Disco IO",
+    },
+  },
+  {
+    id: "thermal",
+    value: 57,
+    unit: "°",
+    trend: "▂▂▃▄▅▆▅▄",
+    labels: {
+      de: "Thermals",
+      en: "Thermals",
+      es: "Termica",
+    },
+  },
+];
+
+const runtimeRows: RuntimeRow[] = [
+  {
+    type: "containers",
+    name: "traefik-edge",
+    image: "traefik:v3",
+    status: "running",
+    cpu: "3.8%",
+    memory: "142MiB",
+    uptime: "12d 04h",
+  },
+  {
+    type: "containers",
+    name: "gitea-app",
+    image: "gitea/gitea:1.23",
+    status: "running",
+    cpu: "8.1%",
+    memory: "512MiB",
+    uptime: "8d 21h",
+  },
+  {
+    type: "containers",
+    name: "vaultwarden",
+    image: "vaultwarden/server:1.33",
+    status: "degraded",
+    cpu: "21.4%",
+    memory: "338MiB",
+    uptime: "5d 13h",
+  },
+  {
+    type: "containers",
+    name: "grafana",
+    image: "grafana/grafana:11.1",
+    status: "running",
+    cpu: "5.2%",
+    memory: "406MiB",
+    uptime: "14d 02h",
+  },
+  {
+    type: "containers",
+    name: "legacy-registry",
+    image: "registry:2",
+    status: "exited",
+    cpu: "0.0%",
+    memory: "0MiB",
+    uptime: "stopped",
+  },
+  {
+    type: "pods",
+    name: "edge-stack",
+    status: "running",
+    containers: 3,
+    cpu: "9.9%",
+    memory: "812MiB",
+    uptime: "12d 04h",
+  },
+  {
+    type: "pods",
+    name: "forge-stack",
+    status: "running",
+    containers: 2,
+    cpu: "12.0%",
+    memory: "724MiB",
+    uptime: "8d 21h",
+  },
+  {
+    type: "pods",
+    name: "auth-stack",
+    status: "degraded",
+    containers: 2,
+    cpu: "24.8%",
+    memory: "701MiB",
+    uptime: "5d 13h",
+  },
+  {
+    type: "pods",
+    name: "backup-stack",
+    status: "pending",
+    containers: 2,
+    cpu: "1.1%",
+    memory: "92MiB",
+    uptime: "starting",
+  },
+];
 
 const translations = locales.map((locale) => {
   const { t } = useI18n<LocaleSchema>({
@@ -19,6 +450,11 @@ const translations = locales.map((locale) => {
     locale,
     pageTitle: t("homelab.title"),
     pageDescription: t("homelab.description"),
+    copy: copyByLocale[locale],
+    metrics: metricTemplates.map((metric) => ({
+      ...metric,
+      label: metric.labels[locale],
+    })),
   };
 });
 
@@ -35,10 +471,159 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
 
   <main class="min-h-screen flex flex-col pt-28 pb-20" data-lang-section>
     {translations.map((trans) => (
-      <section class="lang-content" data-lang={trans.locale}>
+      <section
+        class="lang-content"
+        data-lang={trans.locale}
+        data-homelab-section
+        data-label-running={trans.copy.runtime.statusLabels.running}
+        data-label-degraded={trans.copy.runtime.statusLabels.degraded}
+        data-label-exited={trans.copy.runtime.statusLabels.exited}
+        data-label-pending={trans.copy.runtime.statusLabels.pending}
+      >
         <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{trans.pageTitle}</h1>
-        <p class="text-base opacity-70 max-w-2xl leading-relaxed mb-8">{trans.pageDescription}</p>
-        <StatusMonitor showDetailsLink={false} />
+        <p class="text-base opacity-70 max-w-2xl leading-relaxed mb-4">{trans.copy.intro}</p>
+
+        <div class="flex flex-wrap items-center gap-2 mb-6">
+          <span class="status-pill status-running">{trans.copy.badges.readonly}</span>
+          <span class="status-pill status-pending">{trans.copy.badges.mock}</span>
+        </div>
+
+        <div class="telemetry-surface border border-border rounded-lg p-3 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div class="text-xs opacity-70 flex flex-wrap items-center gap-3">
+            <span>{trans.copy.toolbar.source}: <strong class="opacity-90">{trans.copy.toolbar.sourceValue}</strong></span>
+            <span>{trans.copy.toolbar.lastSync}: <span data-last-sync>2026-02-17 18:40 UTC</span></span>
+          </div>
+          <button type="button" class="text-xs px-3 py-1.5 rounded border border-border hover:border-primary transition-colors" data-homelab-refresh>
+            {trans.copy.toolbar.refresh}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <article class="telemetry-surface border border-border rounded-lg p-3">
+            <p class="text-[0.68rem] uppercase tracking-wider opacity-55">{trans.copy.cards.hosts}</p>
+            <p class="text-xl font-semibold mt-1" data-summary-hosts>3</p>
+            <p class="text-xs opacity-60">{trans.copy.cards.hostsSub}</p>
+          </article>
+          <article class="telemetry-surface border border-border rounded-lg p-3">
+            <p class="text-[0.68rem] uppercase tracking-wider opacity-55">{trans.copy.cards.containers}</p>
+            <p class="text-xl font-semibold mt-1" data-summary-containers>18</p>
+            <p class="text-xs opacity-60">{trans.copy.cards.containersSub}</p>
+          </article>
+          <article class="telemetry-surface border border-border rounded-lg p-3">
+            <p class="text-[0.68rem] uppercase tracking-wider opacity-55">{trans.copy.cards.pods}</p>
+            <p class="text-xl font-semibold mt-1" data-summary-pods>9</p>
+            <p class="text-xs opacity-60">{trans.copy.cards.podsSub}</p>
+          </article>
+          <article class="telemetry-surface border border-border rounded-lg p-3">
+            <p class="text-[0.68rem] uppercase tracking-wider opacity-55">{trans.copy.cards.alerts}</p>
+            <p class="text-xl font-semibold mt-1" data-summary-alerts>1</p>
+            <p class="text-xs opacity-60">{trans.copy.cards.alertsSub}</p>
+          </article>
+        </div>
+
+        <article class="telemetry-surface border border-border rounded-lg p-4 mb-6">
+          <div class="mb-4">
+            <h2 class="uppercase text-sm tracking-wide opacity-60">{trans.copy.hardware.title}</h2>
+            <p class="text-xs opacity-60">{trans.copy.hardware.subtitle}</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {trans.metrics.map((metric) => (
+              <article class="metric-card border border-border rounded-lg p-3" data-metric data-base={metric.value} data-unit={metric.unit}>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs uppercase tracking-wide opacity-55">{metric.label}</span>
+                  <span class="text-sm font-semibold" data-metric-value>{metric.value}{metric.unit}</span>
+                </div>
+                <div class="h-1.5 rounded bg-secondary overflow-hidden mb-2">
+                  <span class="metric-fill" data-metric-bar style={`width: ${metric.value}%`}></span>
+                </div>
+                <p class="text-xs opacity-45">{metric.trend}</p>
+              </article>
+            ))}
+          </div>
+        </article>
+
+        <article class="telemetry-surface border border-border rounded-lg p-4">
+          <div class="mb-4">
+            <h2 class="uppercase text-sm tracking-wide opacity-60">{trans.copy.runtime.title}</h2>
+            <p class="text-xs opacity-60">{trans.copy.runtime.subtitle}</p>
+          </div>
+
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="runtime-tab-btn active" data-runtime-tab="containers">{trans.copy.runtime.tabs.containers}</button>
+              <button type="button" class="runtime-tab-btn" data-runtime-tab="pods">{trans.copy.runtime.tabs.pods}</button>
+            </div>
+            <input
+              type="search"
+              placeholder={trans.copy.runtime.searchPlaceholder}
+              class="runtime-search w-full md:w-56"
+              data-runtime-search
+            />
+          </div>
+
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button type="button" class="runtime-filter-btn active" data-runtime-filter="all">{trans.copy.runtime.filters.all}</button>
+            <button type="button" class="runtime-filter-btn" data-runtime-filter="running">{trans.copy.runtime.filters.running}</button>
+            <button type="button" class="runtime-filter-btn" data-runtime-filter="degraded">{trans.copy.runtime.filters.degraded}</button>
+            <button type="button" class="runtime-filter-btn" data-runtime-filter="pending">{trans.copy.runtime.filters.pending}</button>
+            <button type="button" class="runtime-filter-btn" data-runtime-filter="exited">{trans.copy.runtime.filters.exited}</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border-collapse runtime-table" data-runtime-table>
+              <thead>
+                <tr data-head="containers">
+                  <th>{trans.copy.runtime.containersHead.name}</th>
+                  <th>{trans.copy.runtime.containersHead.image}</th>
+                  <th>{trans.copy.runtime.containersHead.status}</th>
+                  <th>{trans.copy.runtime.containersHead.cpu}</th>
+                  <th>{trans.copy.runtime.containersHead.memory}</th>
+                  <th>{trans.copy.runtime.containersHead.uptime}</th>
+                </tr>
+                <tr data-head="pods" class="hidden">
+                  <th>{trans.copy.runtime.podsHead.name}</th>
+                  <th>{trans.copy.runtime.podsHead.containers}</th>
+                  <th>{trans.copy.runtime.podsHead.status}</th>
+                  <th>{trans.copy.runtime.podsHead.cpu}</th>
+                  <th>{trans.copy.runtime.podsHead.memory}</th>
+                  <th>{trans.copy.runtime.podsHead.uptime}</th>
+                </tr>
+              </thead>
+              <tbody data-runtime-body>
+                {runtimeRows.map((row) => (
+                  <tr
+                    data-runtime-row
+                    data-row-type={row.type}
+                    data-row-status={row.status}
+                    data-row-name={row.name.toLowerCase()}
+                    class={row.type === "pods" ? "hidden" : ""}
+                  >
+                    <td class="mono">{row.name}</td>
+                    {row.type === "containers" ? (
+                      <td class="mono opacity-70">{row.image}</td>
+                    ) : (
+                      <td>{row.containers}</td>
+                    )}
+                    <td>
+                      <span class={`status-pill status-${row.status}`}>{trans.copy.runtime.statusLabels[row.status]}</span>
+                    </td>
+                    <td>{row.cpu}</td>
+                    <td>{row.memory}</td>
+                    <td>{row.uptime}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p class="text-xs opacity-50 mt-3 hidden" data-runtime-empty>{trans.copy.runtime.empty}</p>
+        </article>
+
+        <article class="telemetry-note border border-primary/30 rounded-lg p-4 mt-6">
+          <p class="text-xs uppercase tracking-wide text-primary/90">{trans.copy.note.title}</p>
+          <p class="text-sm opacity-80 mt-1">{trans.copy.note.text}</p>
+        </article>
       </section>
     ))}
   </main>
@@ -54,6 +639,125 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     display: block;
   }
 
+  .telemetry-surface {
+    background: color-mix(in oklab, var(--secondary) 32%, transparent);
+  }
+
+  .telemetry-note {
+    background: color-mix(in oklab, var(--primary) 12%, transparent);
+  }
+
+  .metric-card {
+    background: color-mix(in oklab, var(--secondary) 55%, transparent);
+  }
+
+  .metric-fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, color-mix(in oklab, var(--primary) 50%, transparent), var(--primary));
+    transition: width 240ms ease;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.22rem 0.5rem;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .status-pill::before {
+    content: "";
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.9;
+  }
+
+  .status-running {
+    color: rgb(34 197 94);
+    border-color: rgb(34 197 94 / 0.4);
+  }
+
+  .status-degraded {
+    color: rgb(245 158 11);
+    border-color: rgb(245 158 11 / 0.4);
+  }
+
+  .status-exited {
+    color: rgb(148 163 184);
+    border-color: rgb(148 163 184 / 0.4);
+  }
+
+  .status-pending {
+    color: rgb(59 130 246);
+    border-color: rgb(59 130 246 / 0.4);
+  }
+
+  .runtime-tab-btn,
+  .runtime-filter-btn {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    opacity: 0.75;
+    transition: opacity 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  }
+
+  .runtime-tab-btn.active,
+  .runtime-filter-btn.active {
+    opacity: 1;
+    border-color: var(--primary);
+    background: color-mix(in oklab, var(--primary) 20%, transparent);
+  }
+
+  .runtime-search {
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    background: color-mix(in oklab, var(--secondary) 65%, transparent);
+    font-size: 0.82rem;
+  }
+
+  .runtime-search:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
+  }
+
+  .runtime-table th,
+  .runtime-table td {
+    text-align: left;
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+    vertical-align: middle;
+  }
+
+  .runtime-table th {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.55;
+    font-weight: 600;
+  }
+
+  .runtime-table td {
+    font-size: 0.8rem;
+  }
+
+  .runtime-table td.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.76rem;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -65,3 +769,219 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     }
   }
 </style>
+
+<script>
+  function toNumber(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value.replace(/[^0-9.-]/g, ''));
+      if (Number.isFinite(parsed)) return parsed;
+    }
+    return null;
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function renderRuntimeRow(row, labels) {
+    const statusLabel = labels[row.status] || row.status;
+    const secondary = row.type === 'containers'
+      ? `<td class="mono opacity-70">${row.image || 'n/a'}</td>`
+      : `<td>${row.containers ?? 0}</td>`;
+
+    return `
+      <tr
+        data-runtime-row
+        data-row-type="${row.type}"
+        data-row-status="${row.status}"
+        data-row-name="${String(row.name || '').toLowerCase()}"
+      >
+        <td class="mono">${row.name}</td>
+        ${secondary}
+        <td><span class="status-pill status-${row.status}">${statusLabel}</span></td>
+        <td>${row.cpu}</td>
+        <td>${row.memory}</td>
+        <td>${row.uptime}</td>
+      </tr>
+    `;
+  }
+
+  async function fetchHomelabSnapshot() {
+    const response = await fetch('/api/homelab', {
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Endpoint error: ${response.status}`);
+    }
+    return await response.json();
+  }
+
+  function initHomelabSection(section) {
+    if (section.dataset.homelabInit === 'true') return;
+    section.dataset.homelabInit = 'true';
+
+    const tabButtons = Array.from(section.querySelectorAll('[data-runtime-tab]'));
+    const filterButtons = Array.from(section.querySelectorAll('[data-runtime-filter]'));
+    const runtimeBody = section.querySelector('[data-runtime-body]');
+    let rows = Array.from(section.querySelectorAll('[data-runtime-row]'));
+    const headRows = Array.from(section.querySelectorAll('thead tr[data-head]'));
+    const searchInput = section.querySelector('[data-runtime-search]');
+    const emptyState = section.querySelector('[data-runtime-empty]');
+    const metricCards = Array.from(section.querySelectorAll('[data-metric]'));
+    const refreshButton = section.querySelector('[data-homelab-refresh]');
+    const lastSync = section.querySelector('[data-last-sync]');
+    const summaryHosts = section.querySelector('[data-summary-hosts]');
+    const summaryContainers = section.querySelector('[data-summary-containers]');
+    const summaryPods = section.querySelector('[data-summary-pods]');
+    const summaryAlerts = section.querySelector('[data-summary-alerts]');
+    const statusLabels = {
+      running: section.dataset.labelRunning || 'Running',
+      degraded: section.dataset.labelDegraded || 'Degraded',
+      exited: section.dataset.labelExited || 'Exited',
+      pending: section.dataset.labelPending || 'Pending',
+    };
+
+    let currentTab = 'containers';
+    let currentFilter = 'all';
+    let query = '';
+    let runtimeRows = rows.map((row) => ({
+      type: row.dataset.rowType || 'containers',
+      status: row.dataset.rowStatus || 'running',
+      name: row.dataset.rowName || '',
+    }));
+
+    function applyState() {
+      tabButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.runtimeTab === currentTab);
+      });
+
+      filterButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.runtimeFilter === currentFilter);
+      });
+
+      headRows.forEach((row) => {
+        row.classList.toggle('hidden', row.dataset.head !== currentTab);
+      });
+
+      let visibleRows = 0;
+
+      rows.forEach((row) => {
+        const type = row.dataset.rowType;
+        const status = row.dataset.rowStatus;
+        const name = row.dataset.rowName || '';
+
+        const matchesTab = type === currentTab;
+        const matchesFilter = currentFilter === 'all' || status === currentFilter;
+        const matchesQuery = query.length === 0 || name.includes(query);
+        const visible = matchesTab && matchesFilter && matchesQuery;
+
+        row.classList.toggle('hidden', !visible);
+
+        if (visible) visibleRows += 1;
+      });
+
+      if (emptyState) {
+        emptyState.classList.toggle('hidden', visibleRows > 0);
+      }
+    }
+
+    function applyMetrics(metrics) {
+      const keys = ['cpu', 'memory', 'disk', 'thermal'];
+      metricCards.forEach((card) => {
+        const metricId = card.getAttribute('data-metric');
+        const key = keys[metricCards.indexOf(card)] || metricId;
+        const base = Number(card.getAttribute('data-base') || '0');
+        const unit = card.getAttribute('data-unit') || '%';
+        const fallback = clamp(Math.round(base + ((Math.random() * 12) - 6)), 0, 95);
+        const fromApi = metrics && key in metrics ? toNumber(metrics[key]) : null;
+        const next = fromApi === null ? fallback : clamp(Math.round(fromApi), 0, 95);
+
+        const valueEl = card.querySelector('[data-metric-value]');
+        const barEl = card.querySelector('[data-metric-bar]');
+
+        if (valueEl) valueEl.textContent = `${next}${unit}`;
+        if (barEl) barEl.style.width = `${next}%`;
+      });
+
+      if (lastSync) {
+        lastSync.textContent = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+      }
+    }
+
+    function setRows(nextRows) {
+      if (!runtimeBody || nextRows.length === 0) return;
+
+      runtimeBody.innerHTML = nextRows.map((row) => renderRuntimeRow(row, statusLabels)).join('');
+      rows = Array.from(section.querySelectorAll('[data-runtime-row]'));
+      runtimeRows = nextRows;
+      applyState();
+    }
+
+    function applySummary(summary, rowsData) {
+      const hostCount = summary?.hosts ?? 0;
+      const containerRows = rowsData.filter((row) => row.type === 'containers');
+      const podRows = rowsData.filter((row) => row.type === 'pods');
+      const alertCount = summary?.alerts ?? rowsData.filter((row) => row.status === 'degraded' || row.status === 'pending').length;
+
+      if (summaryHosts) summaryHosts.textContent = String(hostCount || 0);
+      if (summaryContainers) summaryContainers.textContent = String(summary?.containers ?? containerRows.length);
+      if (summaryPods) summaryPods.textContent = String(summary?.pods ?? podRows.length);
+      if (summaryAlerts) summaryAlerts.textContent = String(alertCount);
+    }
+
+    async function refreshFromSource() {
+      try {
+        const snapshot = await fetchHomelabSnapshot();
+        if (snapshot && Array.isArray(snapshot.rows) && snapshot.rows.length > 0) {
+          setRows(snapshot.rows);
+          applySummary(snapshot.summary, snapshot.rows);
+          applyMetrics(snapshot.metrics || null);
+          if (lastSync && snapshot.syncedAt) {
+            lastSync.textContent = String(snapshot.syncedAt).replace('T', ' ').replace('Z', ' UTC');
+          }
+          return;
+        }
+      } catch {
+        // keep current view and jitter current metrics as a visual fallback
+        applyMetrics(null);
+      }
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        currentTab = button.dataset.runtimeTab || 'containers';
+        applyState();
+      });
+    });
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        currentFilter = button.dataset.runtimeFilter || 'all';
+        applyState();
+      });
+    });
+
+    searchInput?.addEventListener('input', () => {
+      query = (searchInput.value || '').toLowerCase().trim();
+      applyState();
+    });
+
+    refreshButton?.addEventListener('click', refreshFromSource);
+
+    applyState();
+    refreshFromSource();
+  }
+
+  function initHomelabPage() {
+    document.querySelectorAll('[data-homelab-section]').forEach((section) => {
+      initHomelabSection(section);
+    });
+  }
+
+  initHomelabPage();
+  window.addEventListener('languagechange', initHomelabPage);
+</script>
