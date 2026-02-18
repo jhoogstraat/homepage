@@ -142,6 +142,46 @@ Update `astro.config.mjs` to change:
 - `pnpm build` - Build for production (includes i18n validation)
 - `pnpm preview` - Preview production build
 
+### Spotify Widget Setup
+
+The Now Playing widget reads from `src/pages/api/spotify.ts`. Credentials stay server-side.
+
+1. Create an app at https://developer.spotify.com/dashboard.
+2. In the app settings, add this Redirect URI (exactly): `http://127.0.0.1:4321/callback`
+3. Open this URL in your browser (replace `YOUR_CLIENT_ID`):
+
+```text
+https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A4321%2Fcallback&scope=user-read-currently-playing%20user-read-recently-played&show_dialog=true
+```
+
+4. Approve access and copy the `code` query parameter from the redirect URL.
+5. Exchange that code for tokens:
+
+```bash
+curl -X POST "https://accounts.spotify.com/api/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=authorization_code&code=PASTE_CODE_HERE&redirect_uri=http://127.0.0.1:4321/callback&client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET"
+```
+
+6. Copy `refresh_token` from the JSON response and create a `.env` file in project root:
+
+```bash
+SPOTIFY_CLIENT_ID=YOUR_CLIENT_ID
+SPOTIFY_CLIENT_SECRET=YOUR_CLIENT_SECRET
+SPOTIFY_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
+# optional: defaults to .spotify/refresh-token.json
+SPOTIFY_TOKEN_STORE_PATH=.spotify/refresh-token.json
+# optional: server-side response cache (default 300000ms / 5 min)
+SPOTIFY_RESPONSE_CACHE_TTL_MS=300000
+# optional: cache time when Spotify API errors (default 5000ms)
+SPOTIFY_RESPONSE_ERROR_CACHE_TTL_MS=5000
+# optional: cache time when credentials are missing (default 60000ms)
+SPOTIFY_UNCONFIGURED_CACHE_TTL_MS=60000
+```
+
+7. Restart the server: `pnpm dev`
+8. Verify: open `http://127.0.0.1:4321/api/spotify`
+
 ## 🌍 Deployment
 
 This template works great with:

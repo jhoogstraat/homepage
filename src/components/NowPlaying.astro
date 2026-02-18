@@ -1,9 +1,9 @@
 ---
 // Spotify Now Playing widget
-// Connects to /api/now-playing endpoint (needs to be set up separately)
+// Connects to /api/spotify server endpoint
 ---
 
-<div id="now-playing" class="border border-border rounded-lg p-3 h-fit">
+<div id="now-playing" class="border border-border rounded-lg p-3 h-fit w-full min-w-0">
   <div class="flex items-center gap-2.5">
     <div id="spotify-icon" class="w-8 h-8 rounded bg-[#1DB954]/20 flex items-center justify-center shrink-0">
       <svg class="w-4 h-4 text-[#1DB954]" viewBox="0 0 24 24" fill="currentColor">
@@ -12,7 +12,9 @@
     </div>
     <div class="flex-1 min-w-0">
       <div id="track-status" class="text-xs opacity-50 mb-0.5">Not playing</div>
-      <div id="track-name" class="font-medium truncate text-sm">—</div>
+      <div id="track-name-viewport" class="track-name-viewport">
+        <div id="track-name" class="track-name">—</div>
+      </div>
       <div id="track-artist" class="text-xs opacity-70 truncate">—</div>
     </div>
     <div id="playing-indicator" class="hidden flex items-end gap-0.5 h-4">
@@ -24,40 +26,129 @@
 </div>
 
 <script>
+  function updateTrackNameAnimation() {
+    const viewport = document.getElementById('track-name-viewport');
+    const trackName = document.getElementById('track-name');
+    if (!viewport || !trackName) return;
+
+    trackName.classList.remove('track-name-scroll');
+    trackName.style.removeProperty('--scroll-distance');
+    trackName.style.removeProperty('--scroll-duration');
+    trackName.style.transform = 'translateX(0)';
+
+    const overflow = trackName.scrollWidth - viewport.clientWidth;
+    if (overflow <= 4) return;
+
+    const distance = overflow + 16;
+    const duration = Math.min(18, Math.max(7, distance / 22));
+    trackName.style.setProperty('--scroll-distance', `${distance}px`);
+    trackName.style.setProperty('--scroll-duration', `${duration}s`);
+    trackName.classList.add('track-name-scroll');
+  }
+
+  function setNowPlayingState(status: string, title: string, artist: string, isPlaying: boolean) {
+    const trackStatus = document.getElementById('track-status');
+    const trackName = document.getElementById('track-name');
+    const trackArtist = document.getElementById('track-artist');
+    const playingIndicator = document.getElementById('playing-indicator');
+
+    if (!trackStatus || !trackName || !trackArtist || !playingIndicator) return;
+
+    trackStatus.textContent = status;
+    trackName.textContent = title;
+    trackArtist.textContent = artist;
+    playingIndicator.classList.toggle('hidden', !isPlaying);
+    requestAnimationFrame(updateTrackNameAnimation);
+  }
+
   async function fetchNowPlaying() {
     try {
-      const response = await fetch('/api/now-playing');
-      const data = await response.json();
-      
-      const trackStatus = document.getElementById('track-status');
-      const trackName = document.getElementById('track-name');
-      const trackArtist = document.getElementById('track-artist');
-      const playingIndicator = document.getElementById('playing-indicator');
-      
-      if (data.isPlaying) {
-        trackStatus!.textContent = 'Now playing';
-        trackName!.textContent = data.title || '—';
-        trackArtist!.textContent = data.artist || '—';
-        playingIndicator!.classList.remove('hidden');
-      } else {
-        trackStatus!.textContent = 'Last played';
-        trackName!.textContent = data.title || '—';
-        trackArtist!.textContent = data.artist || '—';
-        playingIndicator!.classList.add('hidden');
+      const response = await fetch('/api/spotify', {
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Spotify endpoint returned ${response.status}`);
       }
+
+      const data = await response.json();
+
+      if (data.source === 'unconfigured') {
+        setNowPlayingState('Spotify not configured', '—', 'Set SPOTIFY_* server env vars', false);
+        return;
+      }
+
+      if (data.isPlaying && (data.title || data.artist)) {
+        setNowPlayingState('Now playing', data.title || '—', data.artist || '—', true);
+        return;
+      }
+
+      if (data.title || data.artist) {
+        setNowPlayingState('Last played', data.title || '—', data.artist || '—', false);
+        return;
+      }
+
+      setNowPlayingState('Not playing', '—', '—', false);
     } catch {
-      // API not available, show placeholder
-      const trackStatus = document.getElementById('track-status');
-      const trackName = document.getElementById('track-name');
-      const trackArtist = document.getElementById('track-artist');
-      
-      trackStatus!.textContent = 'Now playing';
-      trackName!.textContent = 'Lo-fi beats';
-      trackArtist!.textContent = 'ChillHop Music';
-      document.getElementById('playing-indicator')?.classList.remove('hidden');
+      setNowPlayingState('Spotify unavailable', '—', 'Check server logs', false);
     }
   }
 
   fetchNowPlaying();
   setInterval(fetchNowPlaying, 30000);
+  window.addEventListener('resize', updateTrackNameAnimation);
 </script>
+
+<style>
+  .track-name-viewport {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .track-name-viewport::before,
+  .track-name-viewport::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 14px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .track-name-viewport::before {
+    left: 0;
+    background: linear-gradient(to right, var(--background), transparent);
+  }
+
+  .track-name-viewport::after {
+    right: 0;
+    background: linear-gradient(to left, var(--background), transparent);
+  }
+
+  .track-name {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transform: translateX(0);
+    will-change: transform;
+    position: relative;
+    z-index: 0;
+  }
+
+  .track-name-scroll {
+    animation: track-name-marquee var(--scroll-duration, 9s) ease-in-out infinite alternate;
+  }
+
+  @keyframes track-name-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(var(--scroll-distance, 0px) * -1));
+    }
+  }
+</style>
