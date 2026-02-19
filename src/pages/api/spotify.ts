@@ -50,10 +50,10 @@ const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 const CURRENTLY_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing";
 const RECENTLY_PLAYED_ENDPOINT = "https://api.spotify.com/v1/me/player/recently-played?limit=1";
 
-const SPOTIFY_CLIENT_ID = import.meta.env.SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = import.meta.env.SPOTIFY_CLIENT_SECRET;
-const SPOTIFY_REFRESH_TOKEN = import.meta.env.SPOTIFY_REFRESH_TOKEN;
-const SPOTIFY_TOKEN_STORE_PATH = import.meta.env.SPOTIFY_TOKEN_STORE_PATH || ".spotify/refresh-token.json";
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+const SPOTIFY_TOKEN_STORE_PATH = process.env.SPOTIFY_TOKEN_STORE_PATH || ".spotify/refresh-token.json";
 const SPOTIFY_RESPONSE_CACHE_TTL_MS = Number.parseInt(import.meta.env.SPOTIFY_RESPONSE_CACHE_TTL_MS || "300000", 10);
 const SPOTIFY_RESPONSE_ERROR_CACHE_TTL_MS = Number.parseInt(import.meta.env.SPOTIFY_RESPONSE_ERROR_CACHE_TTL_MS || "5000", 10);
 const SPOTIFY_UNCONFIGURED_CACHE_TTL_MS = Number.parseInt(import.meta.env.SPOTIFY_UNCONFIGURED_CACHE_TTL_MS || "60000", 10);
