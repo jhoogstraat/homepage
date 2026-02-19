@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.9-alpine AS build
+FROM oven/bun:1 AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY astro.config.mjs env.d.ts tsconfig.json ./
 
 RUN bun run build
 
-FROM oven/bun:1.3.9-alpine AS runtime
+FROM oven/bun:1-distroless AS runtime
 
 WORKDIR /app
 
