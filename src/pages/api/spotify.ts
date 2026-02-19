@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
 
+export const prerender = false;
+
 type SpotifyTrack = {
   name?: string;
   artists?: { name?: string }[];

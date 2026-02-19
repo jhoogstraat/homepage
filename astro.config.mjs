@@ -9,15 +9,15 @@ import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://example.com/",
-  output: "server",
-
+  site: "https://hoogstraat.net",
+  output: "static",
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+		ssr: {
+      external: ['detect-libc', 'sharp']
+    }
   },
-
   integrations: [sitemap()],
-
   adapter: node({
     mode: 'standalone'
   })
