@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+.astro
+node_modules
+dist
+.env
+.env.*
+*.log
+bun.lockb

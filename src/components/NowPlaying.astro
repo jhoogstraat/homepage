@@ -26,23 +26,50 @@
 </div>
 
 <script>
-  function updateTrackNameAnimation() {
-    const viewport = document.getElementById('track-name-viewport');
-    const trackName = document.getElementById('track-name');
-    if (!viewport || !trackName) return;
-
+  function resetTrackNameAnimation(viewport: HTMLElement, trackName: HTMLElement) {
+    viewport.classList.remove('track-name-scrolling');
+    viewport.removeAttribute('data-scroll-distance');
+    viewport.removeAttribute('data-scroll-duration');
+    viewport.style.removeProperty('--scroll-duration');
     trackName.classList.remove('track-name-scroll');
     trackName.style.removeProperty('--scroll-distance');
     trackName.style.removeProperty('--scroll-duration');
     trackName.style.transform = 'translateX(0)';
+  }
+
+  function updateTrackNameAnimation(force = false) {
+    const viewport = document.getElementById('track-name-viewport');
+    const trackName = document.getElementById('track-name');
+    if (!viewport || !trackName) return;
 
     const overflow = trackName.scrollWidth - viewport.clientWidth;
-    if (overflow <= 4) return;
+    if (overflow <= 4) {
+      if (force || viewport.classList.contains('track-name-scrolling')) {
+        resetTrackNameAnimation(viewport, trackName);
+      }
+      return;
+    }
 
     const distance = overflow + 16;
     const duration = Math.min(18, Math.max(7, distance / 22));
-    trackName.style.setProperty('--scroll-distance', `${distance}px`);
-    trackName.style.setProperty('--scroll-duration', `${duration}s`);
+    const distanceValue = `${distance}px`;
+    const durationValue = `${duration}s`;
+    const unchanged =
+      !force &&
+      viewport.classList.contains('track-name-scrolling') &&
+      viewport.dataset.scrollDistance === distanceValue &&
+      viewport.dataset.scrollDuration === durationValue;
+
+    if (unchanged) return;
+
+    resetTrackNameAnimation(viewport, trackName);
+
+    viewport.dataset.scrollDistance = distanceValue;
+    viewport.dataset.scrollDuration = durationValue;
+    viewport.style.setProperty('--scroll-duration', durationValue);
+    trackName.style.setProperty('--scroll-distance', distanceValue);
+    trackName.style.setProperty('--scroll-duration', durationValue);
+    viewport.classList.add('track-name-scrolling');
     trackName.classList.add('track-name-scroll');
   }
 
@@ -54,11 +81,20 @@
 
     if (!trackStatus || !trackName || !trackArtist || !playingIndicator) return;
 
+    const titleChanged = trackName.textContent !== title;
+    const nextHidden = !isPlaying;
+    const indicatorChanged = playingIndicator.classList.contains('hidden') !== nextHidden;
+
     trackStatus.textContent = status;
-    trackName.textContent = title;
+    if (titleChanged) {
+      trackName.textContent = title;
+    }
     trackArtist.textContent = artist;
-    playingIndicator.classList.toggle('hidden', !isPlaying);
-    requestAnimationFrame(updateTrackNameAnimation);
+    playingIndicator.classList.toggle('hidden', nextHidden);
+
+    if (titleChanged || indicatorChanged) {
+      requestAnimationFrame(() => updateTrackNameAnimation(true));
+    }
   }
 
   async function fetchNowPlaying() {
@@ -121,11 +157,16 @@
   .track-name-viewport::before {
     left: 0;
     background: linear-gradient(to right, var(--background), transparent);
+    opacity: 0;
   }
 
   .track-name-viewport::after {
     right: 0;
     background: linear-gradient(to left, var(--background), transparent);
+  }
+
+  .track-name-viewport.track-name-scrolling::before {
+    animation: track-name-left-fade var(--scroll-duration, 9s) ease-in-out infinite alternate;
   }
 
   .track-name {
@@ -149,6 +190,15 @@
     }
     to {
       transform: translateX(calc(var(--scroll-distance, 0px) * -1));
+    }
+  }
+
+  @keyframes track-name-left-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 </style>

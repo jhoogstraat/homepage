@@ -20,14 +20,13 @@ A clean, minimalist portfolio template built with Astro and TailwindCSS, featuri
 - **Styling**: [TailwindCSS](https://tailwindcss.com/)
 - **Icons**: [Lucide](https://lucide.dev/)
 - **Internationalization**: [@ariaskit/astro-i18n](https://github.com/JorgeRosbel/astro-i18n)
-- **Package Manager**: pnpm
+- **Package Manager**: Bun
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ 
-- pnpm (recommended)
+- Bun 1.3+
 
 ### Installation
 
@@ -37,10 +36,10 @@ git clone https://github.com/JorgeRosbel/void.git
 cd void
 
 # Install dependencies
-pnpm install
+bun install
 
 # Start development server
-pnpm dev
+bun run dev
 ```
 
 Your site will be available at `http://localhost:4321`.
@@ -49,10 +48,10 @@ Your site will be available at `http://localhost:4321`.
 
 ```bash
 # Build for production
-pnpm build
+bun run build
 
 # Preview production build
-pnpm preview
+bun run preview
 ```
 
 ## 🌐 Internationalization
@@ -138,9 +137,9 @@ Update `astro.config.mjs` to change:
 
 ### Package Scripts
 
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production (includes i18n validation)
-- `pnpm preview` - Preview production build
+- `bun run dev` - Start development server
+- `bun run build` - Build for production (includes i18n validation)
+- `bun run preview` - Preview production build
 
 ### Spotify Widget Setup
 
@@ -179,7 +178,7 @@ SPOTIFY_RESPONSE_ERROR_CACHE_TTL_MS=5000
 SPOTIFY_UNCONFIGURED_CACHE_TTL_MS=60000
 ```
 
-7. Restart the server: `pnpm dev`
+7. Restart the server: `bun run dev`
 8. Verify: open `http://127.0.0.1:4321/api/spotify`
 
 ## 🌍 Deployment

@@ -29,10 +29,10 @@ void/
 ## Build, Test, and Development Commands
 
 ```bash
-pnpm dev          # Start development server at localhost:4321
-pnpm build        # Build for production (runs i18n sync check first)
-pnpm preview      # Preview production build locally
-pnpm check-sync   # Validate i18n files are synchronized
+bun run dev       # Start development server at localhost:4321
+bun run build     # Build for production (runs i18n sync check first)
+bun run preview   # Preview production build locally
+bun run check-sync # Validate i18n files are synchronized
 ```
 
 **Build Process:**
@@ -95,8 +95,8 @@ Use conventional commits format with emojis:
 
 **Pull Requests:**
 1. Update all i18n files when adding/modifying content
-2. Run `pnpm check-sync` before submitting
-3. Ensure build succeeds: `pnpm build`
+2. Run `bun run check-sync` before submitting
+3. Ensure build succeeds: `bun run build`
 4. Update README.md if adding new features or changing structure
 
 ## Internationalization (i18n)
