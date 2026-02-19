@@ -12,7 +12,7 @@ COPY astro.config.mjs env.d.ts tsconfig.json ./
 
 RUN bun run build
 
-FROM oven/bun:1-distroless AS runtime
+FROM oven/bun:1 AS runtime
 
 WORKDIR /app
 
@@ -24,6 +24,5 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
 EXPOSE 4321
-
 
 CMD ["bun", "dist/server/entry.mjs"]

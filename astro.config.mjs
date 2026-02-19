@@ -9,16 +9,13 @@ import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://hoogstraat.net",
-  output: "static",
-  vite: {
-    plugins: [tailwindcss()],
-		ssr: {
-      external: ['detect-libc', 'sharp']
-    }
-  },
-  integrations: [sitemap()],
-  adapter: node({
-    mode: 'standalone'
-  })
+	site: "https://hoogstraat.net",
+	output: "static",
+	vite: {
+		plugins: [tailwindcss()],
+	},
+	integrations: [sitemap()],
+	adapter: node({
+		mode: 'standalone'
+	})
 });
