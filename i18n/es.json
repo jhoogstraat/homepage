@@ -235,6 +235,115 @@
     "title": "Homelab",
     "description": "Mi configuración y proyectos de homelab personal"
   },
+  "legal": {
+    "links": {
+      "imprint": "aviso legal",
+      "privacy": "privacidad"
+    },
+    "imprint": {
+      "title": "Aviso legal",
+      "description": "Información legal conforme al art. 5 DDG y al art. 18 apdo. 2 MStV.",
+      "sections": {
+        "provider": {
+          "title": "Información conforme al art. 5 DDG",
+          "items": {
+            "name": {
+              "label": "Nombre",
+              "value": "Joshua Hoogstraat"
+            },
+            "address": {
+              "label": "Dirección",
+              "value": "[Introduce calle, código postal, ciudad, Alemania]"
+            },
+            "email": {
+              "label": "Correo electrónico",
+              "value": "joshua.hoogstraat@icloud.com"
+            },
+            "phone": {
+              "label": "Teléfono",
+              "value": "[opcional]"
+            }
+          }
+        },
+        "responsible": {
+          "title": "Responsable del contenido editorial según el art. 18 apdo. 2 MStV",
+          "items": {
+            "name": {
+              "label": "Persona responsable",
+              "value": "Joshua Hoogstraat"
+            }
+          }
+        },
+        "dispute": {
+          "title": "Resolución de conflictos de consumo",
+          "text": "No estoy dispuesto ni obligado a participar en procedimientos de resolución de conflictos ante juntas arbitrales de consumo."
+        },
+        "liability": {
+          "title": "Responsabilidad por contenidos",
+          "text": "Los contenidos de este sitio se han creado con cuidado. Sin embargo, no se asume garantía por su exactitud, integridad o actualidad."
+        },
+        "copyright": {
+          "title": "Derechos de autor",
+          "text": "Salvo indicación contraria, los contenidos creados en este sitio están protegidos por derechos de autor. Su reutilización requiere autorización previa."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Política de privacidad",
+      "description": "Información sobre el tratamiento de datos personales en este sitio web.",
+      "updated": "Última actualización: 20 de febrero de 2026",
+      "sections": {
+        "controller": {
+          "title": "Responsable del tratamiento",
+          "text": "Responsable del tratamiento de datos en este sitio web: Joshua Hoogstraat, [introduce dirección postal completa], correo: joshua.hoogstraat@icloud.com."
+        },
+        "hosting": {
+          "title": "Ubicación del alojamiento",
+          "text": "El sitio web y el servidor se operan en Alemania (Unión Europea)."
+        },
+        "serverLogs": {
+          "title": "Archivos de registro del servidor",
+          "items": [
+            "Al visitar el sitio, el servidor procesa datos de conexión técnicamente necesarios (por ejemplo, dirección IP, fecha y hora, recurso solicitado, código de estado, user agent).",
+            "El tratamiento es necesario para ofrecer el sitio, garantizar la estabilidad y prevenir abusos."
+          ]
+        },
+        "visitorCount": {
+          "title": "Conteo de visitantes",
+          "text": "El conteo de visitantes se realiza del lado del servidor y sin cookies. No se usan cookies de seguimiento ni fingerprinting del navegador. El conteo se basa en estadísticas agregadas de solicitudes."
+        },
+        "legalBasis": {
+          "title": "Base legal",
+          "items": [
+            "Art. 6 apdo. 1 letra f RGPD (intereses legítimos) para la operación segura y una medición básica de alcance.",
+            "Si en el futuro fuera necesario almacenar o acceder al dispositivo del usuario de forma no técnica, se solicitará consentimiento previo."
+          ]
+        },
+        "recipients": {
+          "title": "Destinatarios",
+          "text": "Los datos solo se tratan donde sea técnicamente necesario (por ejemplo, por proveedores de hosting o infraestructura sujetos a contrato). No se venden datos."
+        },
+        "retention": {
+          "title": "Plazo de conservación",
+          "text": "Los datos personales se conservan solo durante el tiempo necesario para los fines indicados o por obligaciones legales. Los registros se mantienen durante un periodo breve orientado a seguridad."
+        },
+        "rights": {
+          "title": "Tus derechos",
+          "items": [
+            "Derecho de acceso (art. 15 RGPD)",
+            "Derecho de rectificación (art. 16 RGPD)",
+            "Derecho de supresión (art. 17 RGPD)",
+            "Derecho a la limitación del tratamiento (art. 18 RGPD)",
+            "Derecho de oposición (art. 21 RGPD)"
+          ]
+        },
+        "complaint": {
+          "title": "Derecho a presentar reclamación",
+          "text": "Tienes derecho a presentar una reclamación ante una autoridad de control de protección de datos, especialmente en el Estado miembro de la UE de tu residencia, tu lugar de trabajo o el lugar de la supuesta infracción."
+        }
+      }
+    }
+  },
   "contact": {
     "status": "Disponible para oportunidades",
     "email_label": "Email",

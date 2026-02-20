@@ -235,6 +235,115 @@
     "title": "Homelab",
     "description": "My personal homelab setup and projects"
   },
+  "legal": {
+    "links": {
+      "imprint": "imprint",
+      "privacy": "privacy"
+    },
+    "imprint": {
+      "title": "Imprint",
+      "description": "Legal information according to Section 5 DDG and Section 18 para. 2 MStV.",
+      "sections": {
+        "provider": {
+          "title": "Information according to Section 5 DDG",
+          "items": {
+            "name": {
+              "label": "Name",
+              "value": "Joshua Hoogstraat"
+            },
+            "address": {
+              "label": "Address",
+              "value": "[Please enter street, postal code, city, Germany]"
+            },
+            "email": {
+              "label": "Email",
+              "value": "joshua.hoogstraat@icloud.com"
+            },
+            "phone": {
+              "label": "Phone",
+              "value": "[optional]"
+            }
+          }
+        },
+        "responsible": {
+          "title": "Responsible for editorial content according to Section 18 para. 2 MStV",
+          "items": {
+            "name": {
+              "label": "Responsible person",
+              "value": "Joshua Hoogstraat"
+            }
+          }
+        },
+        "dispute": {
+          "title": "Consumer dispute resolution",
+          "text": "I am not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+        },
+        "liability": {
+          "title": "Liability for content",
+          "text": "The content of this website was created with care. However, no guarantee is given for correctness, completeness, or timeliness."
+        },
+        "copyright": {
+          "title": "Copyright",
+          "text": "Unless otherwise marked, content created on this website is subject to copyright. Reuse requires prior permission."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Information about processing personal data on this website.",
+      "updated": "Last updated: February 20, 2026",
+      "sections": {
+        "controller": {
+          "title": "Controller",
+          "text": "Responsible for data processing on this website: Joshua Hoogstraat, [please enter full postal address], email: joshua.hoogstraat@icloud.com."
+        },
+        "hosting": {
+          "title": "Hosting location",
+          "text": "The website and server are operated in Germany (European Union)."
+        },
+        "serverLogs": {
+          "title": "Server log files",
+          "items": [
+            "When visiting the website, the server processes technically necessary connection data (for example IP address, date and time, requested resource, status code, user agent).",
+            "Processing is necessary to provide the website, ensure stability and protect against misuse."
+          ]
+        },
+        "visitorCount": {
+          "title": "Visitor counting",
+          "text": "Visitor counting is performed server-side and cookieless. No tracking cookies or browser fingerprinting are used. The count is based on aggregated request statistics."
+        },
+        "legalBasis": {
+          "title": "Legal basis",
+          "items": [
+            "Art. 6 para. 1 lit. f GDPR (legitimate interests) for secure operation and basic reach measurement.",
+            "If storage/access on end devices ever becomes required and is not technically necessary, prior consent will be requested."
+          ]
+        },
+        "recipients": {
+          "title": "Recipients",
+          "text": "Data is processed only where technically necessary (for example by hosting providers or infrastructure service providers bound by contract). Data is not sold."
+        },
+        "retention": {
+          "title": "Storage duration",
+          "text": "Personal data is stored only as long as required for the stated purposes or legal obligations. Log data is kept for a short, security-oriented period."
+        },
+        "rights": {
+          "title": "Your rights",
+          "items": [
+            "Right of access (Art. 15 GDPR)",
+            "Right to rectification (Art. 16 GDPR)",
+            "Right to erasure (Art. 17 GDPR)",
+            "Right to restriction of processing (Art. 18 GDPR)",
+            "Right to object (Art. 21 GDPR)"
+          ]
+        },
+        "complaint": {
+          "title": "Right to lodge a complaint",
+          "text": "You have the right to lodge a complaint with a data protection supervisory authority, especially in the EU member state of your residence, your place of work, or the place of the alleged infringement."
+        }
+      }
+    }
+  },
   "contact": {
     "status": "Available for opportunities",
     "email_label": "Email",

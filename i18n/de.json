@@ -235,6 +235,115 @@
     "title": "Homelab",
     "description": "Meine persönliche Homelab-Einrichtung und Projekte"
   },
+  "legal": {
+    "links": {
+      "imprint": "impressum",
+      "privacy": "datenschutz"
+    },
+    "imprint": {
+      "title": "Impressum",
+      "description": "Angaben gemäß § 5 DDG und § 18 Abs. 2 MStV.",
+      "sections": {
+        "provider": {
+          "title": "Angaben gemäß § 5 DDG",
+          "items": {
+            "name": {
+              "label": "Name",
+              "value": "Joshua Hoogstraat"
+            },
+            "address": {
+              "label": "Anschrift",
+              "value": "[Bitte Straße, PLZ, Ort, Deutschland eintragen]"
+            },
+            "email": {
+              "label": "E-Mail",
+              "value": "joshua.hoogstraat@icloud.com"
+            },
+            "phone": {
+              "label": "Telefon",
+              "value": "[optional]"
+            }
+          }
+        },
+        "responsible": {
+          "title": "Verantwortlich für journalistisch-redaktionelle Inhalte gemäß § 18 Abs. 2 MStV",
+          "items": {
+            "name": {
+              "label": "Verantwortliche Person",
+              "value": "Joshua Hoogstraat"
+            }
+          }
+        },
+        "dispute": {
+          "title": "Verbraucherstreitbeilegung",
+          "text": "Ich bin nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+        },
+        "liability": {
+          "title": "Haftung für Inhalte",
+          "text": "Die Inhalte dieser Website wurden mit Sorgfalt erstellt. Für Richtigkeit, Vollständigkeit und Aktualität wird jedoch keine Gewähr übernommen."
+        },
+        "copyright": {
+          "title": "Urheberrecht",
+          "text": "Sofern nicht anders gekennzeichnet, unterliegen die auf dieser Website erstellten Inhalte dem Urheberrecht. Eine Weiterverwendung bedarf der vorherigen Zustimmung."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "description": "Informationen zur Verarbeitung personenbezogener Daten auf dieser Website.",
+      "updated": "Stand: 20. Februar 2026",
+      "sections": {
+        "controller": {
+          "title": "Verantwortlicher",
+          "text": "Verantwortlich für die Datenverarbeitung auf dieser Website: Joshua Hoogstraat, [bitte vollständige Postanschrift eintragen], E-Mail: joshua.hoogstraat@icloud.com."
+        },
+        "hosting": {
+          "title": "Hosting-Standort",
+          "text": "Die Website und der Server werden in Deutschland (Europäische Union) betrieben."
+        },
+        "serverLogs": {
+          "title": "Server-Logdateien",
+          "items": [
+            "Beim Aufruf der Website verarbeitet der Server technisch notwendige Verbindungsdaten (zum Beispiel IP-Adresse, Datum und Uhrzeit, angeforderte Ressource, Statuscode, User-Agent).",
+            "Die Verarbeitung ist erforderlich, um die Website bereitzustellen, die Stabilität sicherzustellen und Missbrauch abzuwehren."
+          ]
+        },
+        "visitorCount": {
+          "title": "Besucherzählung",
+          "text": "Die Besucherzählung erfolgt serverseitig und cookiefrei. Es werden keine Tracking-Cookies und kein Browser-Fingerprinting eingesetzt. Die Zählung basiert auf aggregierten Request-Statistiken."
+        },
+        "legalBasis": {
+          "title": "Rechtsgrundlagen",
+          "items": [
+            "Art. 6 Abs. 1 lit. f DSGVO (berechtigte Interessen) für sicheren Betrieb und eine grundlegende Reichweitenmessung.",
+            "Falls künftig eine nicht technisch notwendige Speicherung oder ein Zugriff auf Endgeräten erforderlich wird, wird vorher eine Einwilligung eingeholt."
+          ]
+        },
+        "recipients": {
+          "title": "Empfänger",
+          "text": "Daten werden nur technisch erforderlich weiterverarbeitet (zum Beispiel durch vertraglich gebundene Hosting- oder Infrastruktur-Dienstleister). Ein Verkauf von Daten findet nicht statt."
+        },
+        "retention": {
+          "title": "Speicherdauer",
+          "text": "Personenbezogene Daten werden nur so lange gespeichert, wie es für die genannten Zwecke oder gesetzliche Pflichten erforderlich ist. Logdaten werden für einen kurzen, sicherheitsorientierten Zeitraum vorgehalten."
+        },
+        "rights": {
+          "title": "Ihre Rechte",
+          "items": [
+            "Auskunft (Art. 15 DSGVO)",
+            "Berichtigung (Art. 16 DSGVO)",
+            "Löschung (Art. 17 DSGVO)",
+            "Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+            "Widerspruch (Art. 21 DSGVO)"
+          ]
+        },
+        "complaint": {
+          "title": "Beschwerderecht",
+          "text": "Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, insbesondere in dem EU-Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes."
+        }
+      }
+    }
+  },
   "contact": {
     "status": "Verfügbar für Möglichkeiten",
     "email_label": "Email",

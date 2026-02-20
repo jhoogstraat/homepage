@@ -1,0 +1,130 @@
+---
+import Layout from "@/src/layouts/Layout.astro";
+import Header from "@/src/components/Header.astro";
+import deLocale from "@/i18n/de.json";
+import enLocale from "@/i18n/en.json";
+import esLocale from "@/i18n/es.json";
+import { type LocaleSchema } from "@/src/types";
+
+const locales = ["de", "en", "es"] as const;
+type Locale = (typeof locales)[number];
+
+const localeMap: Record<Locale, LocaleSchema> = {
+  de: deLocale,
+  en: enLocale,
+  es: esLocale,
+};
+
+const translations = locales.map((locale) => {
+  const legal = localeMap[locale].legal;
+
+  return {
+    locale,
+    pageTitle: legal.privacy.title,
+    pageDescription: legal.privacy.description,
+    privacy: legal.privacy,
+  };
+});
+
+const defaultLocale = "de";
+const defaultTrans = translations.find((item) => item.locale === defaultLocale) || translations[0];
+---
+
+<Layout locale={defaultLocale} title={`Joshua Hoogstraat - ${defaultTrans.pageTitle}`} description={defaultTrans.pageDescription}>
+  <Header
+    locales={locales}
+    currentLocale={defaultLocale}
+    currentPath="privacy"
+  />
+
+  <main class="min-h-screen flex flex-col pt-28 pb-20" data-lang-section>
+    {translations.map((trans) => (
+      <section class="lang-content space-y-8" data-lang={trans.locale}>
+        <div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{trans.pageTitle}</h1>
+          <p class="text-base opacity-70 max-w-2xl leading-relaxed">{trans.pageDescription}</p>
+          <p class="text-xs uppercase tracking-wide opacity-55 mt-4">{trans.privacy.updated}</p>
+        </div>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.controller.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.privacy.sections.controller.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.hosting.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.privacy.sections.hosting.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.serverLogs.title}</h2>
+          <ul class="list-disc list-inside text-sm opacity-80 leading-relaxed space-y-2">
+            {trans.privacy.sections.serverLogs.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.visitorCount.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.privacy.sections.visitorCount.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.legalBasis.title}</h2>
+          <ul class="list-disc list-inside text-sm opacity-80 leading-relaxed space-y-2">
+            {trans.privacy.sections.legalBasis.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.recipients.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.privacy.sections.recipients.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.retention.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.privacy.sections.retention.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.rights.title}</h2>
+          <ul class="list-disc list-inside text-sm opacity-80 leading-relaxed space-y-2">
+            {trans.privacy.sections.rights.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.privacy.sections.complaint.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.privacy.sections.complaint.text}</p>
+        </article>
+      </section>
+    ))}
+  </main>
+</Layout>
+
+<style>
+  .lang-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .lang-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

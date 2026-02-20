@@ -3,12 +3,6 @@ import { Mail, Github, Linkedin } from "@lucide/astro";
 import { useI18n } from "@ariaskit/astro-i18n";
 import { type LocaleSchema } from "@/src/types";
 
-interface Props {
-  locale: string;
-}
-
-const { locale } = Astro.props as Props;
-
 // Get all translations at build time
 const locales = ["de", "en", "es"] as const;
 
@@ -23,6 +17,8 @@ const translations = locales.map((loc) => {
   return {
     locale: loc,
     status: t("contact.status"),
+    legal_imprint: t("legal.links.imprint"),
+    legal_privacy: t("legal.links.privacy"),
     email_label: t("contact.email_label"),
     email_url: t("contact.email_url"),
     github_label: t("contact.github_label"),
@@ -36,7 +32,6 @@ const translations = locales.map((loc) => {
   };
 });
 
-const defaultTrans = translations.find(t => t.locale === locale) || translations[0];
 ---
 
 <footer
@@ -80,6 +75,11 @@ const defaultTrans = translations.find(t => t.locale === locale) || translations
           <Linkedin className="h-4 w-4" />
           {trans.linkedin_label}
         </a>
+      </div>
+      <div class="mt-3 flex justify-center items-center gap-3 text-xs uppercase tracking-wide opacity-60">
+        <a href="/imprint" class="hover:opacity-100 transition-colors">{trans.legal_imprint}</a>
+        <span class="opacity-40">|</span>
+        <a href="/privacy" class="hover:opacity-100 transition-colors">{trans.legal_privacy}</a>
       </div>
     </div>
   ))}

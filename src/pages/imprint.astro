@@ -1,0 +1,116 @@
+---
+import Layout from "@/src/layouts/Layout.astro";
+import Header from "@/src/components/Header.astro";
+import deLocale from "@/i18n/de.json";
+import enLocale from "@/i18n/en.json";
+import esLocale from "@/i18n/es.json";
+import { type LocaleSchema } from "@/src/types";
+
+const locales = ["de", "en", "es"] as const;
+type Locale = (typeof locales)[number];
+
+const localeMap: Record<Locale, LocaleSchema> = {
+  de: deLocale,
+  en: enLocale,
+  es: esLocale,
+};
+
+const translations = locales.map((locale) => {
+  const legal = localeMap[locale].legal;
+
+  return {
+    locale,
+    pageTitle: legal.imprint.title,
+    pageDescription: legal.imprint.description,
+    imprint: legal.imprint,
+  };
+});
+
+const defaultLocale = "de";
+const defaultTrans = translations.find((item) => item.locale === defaultLocale) || translations[0];
+---
+
+<Layout locale={defaultLocale} title={`Joshua Hoogstraat - ${defaultTrans.pageTitle}`} description={defaultTrans.pageDescription}>
+  <Header
+    locales={locales}
+    currentLocale={defaultLocale}
+    currentPath="imprint"
+  />
+
+  <main class="min-h-screen flex flex-col pt-28 pb-20" data-lang-section>
+    {translations.map((trans) => (
+      <section class="lang-content space-y-8" data-lang={trans.locale}>
+        <div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{trans.pageTitle}</h1>
+          <p class="text-base opacity-70 max-w-2xl leading-relaxed">{trans.pageDescription}</p>
+        </div>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.imprint.sections.provider.title}</h2>
+          <dl class="grid grid-cols-1 md:grid-cols-[12rem,1fr] gap-y-2 gap-x-4 text-sm opacity-85">
+            <dt class="uppercase tracking-wide opacity-60">{trans.imprint.sections.provider.items.name.label}</dt>
+            <dd>{trans.imprint.sections.provider.items.name.value}</dd>
+
+            <dt class="uppercase tracking-wide opacity-60">{trans.imprint.sections.provider.items.address.label}</dt>
+            <dd>{trans.imprint.sections.provider.items.address.value}</dd>
+
+            <dt class="uppercase tracking-wide opacity-60">{trans.imprint.sections.provider.items.email.label}</dt>
+            <dd>
+              <a class="underline decoration-border underline-offset-4 hover:decoration-primary" href="mailto:joshua.hoogstraat@icloud.com">
+                {trans.imprint.sections.provider.items.email.value}
+              </a>
+            </dd>
+
+            <dt class="uppercase tracking-wide opacity-60">{trans.imprint.sections.provider.items.phone.label}</dt>
+            <dd>{trans.imprint.sections.provider.items.phone.value}</dd>
+          </dl>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.imprint.sections.responsible.title}</h2>
+          <dl class="grid grid-cols-1 md:grid-cols-[12rem,1fr] gap-y-2 gap-x-4 text-sm opacity-85">
+            <dt class="uppercase tracking-wide opacity-60">{trans.imprint.sections.responsible.items.name.label}</dt>
+            <dd>{trans.imprint.sections.responsible.items.name.value}</dd>
+          </dl>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.imprint.sections.dispute.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.imprint.sections.dispute.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.imprint.sections.liability.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.imprint.sections.liability.text}</p>
+        </article>
+
+        <article class="border border-border rounded-lg p-6 bg-secondary/20 space-y-3">
+          <h2 class="text-xl font-semibold">{trans.imprint.sections.copyright.title}</h2>
+          <p class="text-sm opacity-80 leading-relaxed">{trans.imprint.sections.copyright.text}</p>
+        </article>
+      </section>
+    ))}
+  </main>
+</Layout>
+
+<style>
+  .lang-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .lang-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
