@@ -35,6 +35,8 @@ type Snapshot = {
 
 const HOMELAB_LOG_PREFIX = "[api/homelab]";
 const BESZEL_BASE_URL_FALLBACK = "http://127.0.0.1:8090";
+const BESZEL_AUTH_PATH_FALLBACK = "api/collections/users/auth-with-password";
+const RESPONSE_SNIPPET_MAX_LENGTH = 400;
 
 const COLLECTION_CANDIDATES = {
   containers: ["containers", "container_stats"],
@@ -149,19 +151,92 @@ function formatError(error: unknown): Record<string, string> {
   return { message: String(error) };
 }
 
-function resolveBeszelBaseUrl(): string {
+function resolveRuntimeEnv(name: string): string | undefined {
   const processEnv = typeof process !== "undefined" ? process.env : undefined;
-  const runtimeValue = processEnv?.["BESZEL_BASE_URL"];
+  const runtimeValue = processEnv?.[name];
   if (typeof runtimeValue === "string" && runtimeValue.trim().length > 0) {
     return runtimeValue.trim();
   }
 
-  const buildValue = import.meta.env.BESZEL_BASE_URL;
+  const buildValue = import.meta.env[name];
   if (typeof buildValue === "string" && buildValue.trim().length > 0) {
     return buildValue.trim();
   }
 
-  return BESZEL_BASE_URL_FALLBACK;
+  return undefined;
+}
+
+function resolveBeszelBaseUrl(): string {
+  return resolveRuntimeEnv("BESZEL_BASE_URL") || BESZEL_BASE_URL_FALLBACK;
+}
+
+function resolveBeszelAuthConfig(): { email?: string; password?: string; authPath: string } {
+  return {
+    email: resolveRuntimeEnv("BESZEL_PB_EMAIL"),
+    password: resolveRuntimeEnv("BESZEL_PB_PASSWORD"),
+    authPath: resolveRuntimeEnv("BESZEL_PB_AUTH_PATH") || BESZEL_AUTH_PATH_FALLBACK,
+  };
+}
+
+async function readResponseSnippet(response: Response): Promise<string | null> {
+  try {
+    const body = (await response.clone().text()).trim();
+    if (!body) return null;
+    if (body.length <= RESPONSE_SNIPPET_MAX_LENGTH) return body;
+    return `${body.slice(0, RESPONSE_SNIPPET_MAX_LENGTH)}...`;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveBeszelAuthToken(baseUrl: string, requestId: string): Promise<string | null> {
+  const authConfig = resolveBeszelAuthConfig();
+  const hasEmail = Boolean(authConfig.email);
+  const hasPassword = Boolean(authConfig.password);
+
+  if (!hasEmail || !hasPassword) {
+    logWithLevel("info", requestId, "PocketBase auth credentials not fully configured; using unauthenticated Beszel requests", {
+      hasEmail,
+      hasPassword,
+    });
+    return null;
+  }
+
+  const authUrl = joinUrl(baseUrl, authConfig.authPath);
+  logWithLevel("info", requestId, "Authenticating against PocketBase", {
+    authUrl,
+  });
+
+  const response = await fetch(authUrl, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      identity: authConfig.email,
+      password: authConfig.password,
+    }),
+  });
+
+  if (!response.ok) {
+    const snippet = await readResponseSnippet(response);
+    logWithLevel("warn", requestId, "PocketBase authentication failed", {
+      status: response.status,
+      authUrl,
+      responseBody: snippet,
+    });
+    throw new Error(`PocketBase authentication failed with status ${response.status}`);
+  }
+
+  const payload = (await response.json()) as { token?: unknown };
+  if (typeof payload.token !== "string" || payload.token.trim().length === 0) {
+    throw new Error("PocketBase authentication response is missing token");
+  }
+
+  logWithLevel("info", requestId, "PocketBase authentication succeeded");
+  return payload.token;
 }
 
 function toNumber(value: unknown): number | null {
@@ -247,17 +322,21 @@ function joinUrl(base: string, path: string): string {
   return `${trimmedBase}/${normalizedPath}`;
 }
 
-async function fetchJson(url: string, requestId: string, timeout = 5000): Promise<unknown | null> {
+async function fetchJson(url: string, requestId: string, authToken?: string, timeout = 5000): Promise<unknown | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    logWithLevel("info", requestId, "Fetching Beszel URL", { url });
+    logWithLevel("info", requestId, "Fetching Beszel URL", {
+      url,
+      authenticated: Boolean(authToken),
+    });
     const response = await fetch(url, {
       signal: controller.signal,
       cache: "no-store",
       headers: {
         Accept: "application/json",
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       },
     });
 
@@ -289,9 +368,9 @@ async function fetchJson(url: string, requestId: string, timeout = 5000): Promis
   }
 }
 
-async function fetchCollection(baseUrl: string, collectionName: string, requestId: string): Promise<Record<string, unknown>[] | null> {
+async function fetchCollection(baseUrl: string, collectionName: string, requestId: string, authToken?: string): Promise<Record<string, unknown>[] | null> {
   const url = joinUrl(baseUrl, `api/collections/${collectionName}/records?perPage=200&sort=-updated`);
-  const data = await fetchJson(url, requestId);
+  const data = await fetchJson(url, requestId, authToken);
   if (!data || typeof data !== "object" || !Array.isArray((data as { items?: unknown[] }).items)) {
     logWithLevel("info", requestId, "Collection payload missing items array", {
       collectionName,
@@ -307,14 +386,20 @@ async function fetchCollection(baseUrl: string, collectionName: string, requestI
   return items;
 }
 
-async function fetchFirstCollection(baseUrl: string, candidates: string[], requestId: string, kind: "containers" | "pods"): Promise<Record<string, unknown>[]> {
+async function fetchFirstCollection(
+  baseUrl: string,
+  candidates: string[],
+  requestId: string,
+  kind: "containers" | "pods",
+  authToken?: string,
+): Promise<Record<string, unknown>[]> {
   for (const candidate of candidates) {
     try {
       logWithLevel("info", requestId, "Trying Beszel collection candidate", {
         kind,
         candidate,
       });
-      const items = await fetchCollection(baseUrl, candidate, requestId);
+      const items = await fetchCollection(baseUrl, candidate, requestId, authToken);
       if (items !== null) {
         logWithLevel("info", requestId, "Selected Beszel collection candidate", {
           kind,
@@ -445,7 +530,8 @@ async function buildBeszelSnapshot(baseUrl: string, requestId: string): Promise<
   logWithLevel("info", requestId, "Attempting Beszel snapshot", {
     baseUrl,
   });
-  const systems = await fetchCollection(baseUrl, "systems", requestId);
+  const authToken = await resolveBeszelAuthToken(baseUrl, requestId);
+  const systems = await fetchCollection(baseUrl, "systems", requestId, authToken);
   if (!systems || systems.length === 0) {
     logWithLevel("warn", requestId, "Beszel systems collection is empty or unavailable");
     throw new Error("No systems from Beszel");
@@ -453,8 +539,8 @@ async function buildBeszelSnapshot(baseUrl: string, requestId: string): Promise<
   logWithLevel("info", requestId, "Fetched systems from Beszel", { count: systems.length });
 
   const [containers, pods] = await Promise.all([
-    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.containers, requestId, "containers"),
-    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.pods, requestId, "pods"),
+    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.containers, requestId, "containers", authToken),
+    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.pods, requestId, "pods", authToken),
   ]);
 
   const rows = buildRuntimeRows(systems, containers, pods, requestId);
