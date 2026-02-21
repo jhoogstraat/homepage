@@ -34,6 +34,7 @@ type Snapshot = {
 };
 
 const BESZEL_BASE_URL = import.meta.env.BESZEL_BASE_URL || "http://127.0.0.1:8090";
+const HOMELAB_LOG_PREFIX = "[api/homelab]";
 
 const COLLECTION_CANDIDATES = {
   containers: ["containers", "container_stats"],
@@ -124,6 +125,30 @@ const mockRows: RuntimeRow[] = [
   },
 ];
 
+function makeRequestId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function logWithLevel(level: "info" | "warn" | "error", requestId: string, message: string, details?: unknown): void {
+  const prefix = `${HOMELAB_LOG_PREFIX} [${requestId}] ${message}`;
+  if (details === undefined) {
+    console[level](prefix);
+    return;
+  }
+  console[level](prefix, details);
+}
+
+function formatError(error: unknown): Record<string, string> {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack || "",
+    };
+  }
+  return { message: String(error) };
+}
+
 function toNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
@@ -207,11 +232,12 @@ function joinUrl(base: string, path: string): string {
   return `${trimmedBase}/${normalizedPath}`;
 }
 
-async function fetchJson(url: string, timeout = 5000): Promise<unknown | null> {
+async function fetchJson(url: string, requestId: string, timeout = 5000): Promise<unknown | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
+    logWithLevel("info", requestId, "Fetching Beszel URL", { url });
     const response = await fetch(url, {
       signal: controller.signal,
       cache: "no-store",
@@ -220,31 +246,81 @@ async function fetchJson(url: string, timeout = 5000): Promise<unknown | null> {
       },
     });
 
-    if (response.status === 404) return null;
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (response.status === 404) {
+      logWithLevel("info", requestId, "Beszel URL returned 404", { url });
+      return null;
+    }
+    if (!response.ok) {
+      logWithLevel("warn", requestId, "Beszel URL returned non-OK status", {
+        url,
+        status: response.status,
+      });
+      throw new Error(`HTTP ${response.status}`);
+    }
 
+    logWithLevel("info", requestId, "Beszel URL returned JSON payload", {
+      url,
+      status: response.status,
+    });
     return await response.json();
+  } catch (error) {
+    logWithLevel("warn", requestId, "Failed Beszel URL fetch", {
+      url,
+      error: formatError(error),
+    });
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
-async function fetchCollection(baseUrl: string, collectionName: string): Promise<Record<string, unknown>[] | null> {
+async function fetchCollection(baseUrl: string, collectionName: string, requestId: string): Promise<Record<string, unknown>[] | null> {
   const url = joinUrl(baseUrl, `api/collections/${collectionName}/records?perPage=200&sort=-updated`);
-  const data = await fetchJson(url);
-  if (!data || typeof data !== "object" || !Array.isArray((data as { items?: unknown[] }).items)) return null;
-  return (data as { items: Record<string, unknown>[] }).items;
+  const data = await fetchJson(url, requestId);
+  if (!data || typeof data !== "object" || !Array.isArray((data as { items?: unknown[] }).items)) {
+    logWithLevel("info", requestId, "Collection payload missing items array", {
+      collectionName,
+      url,
+    });
+    return null;
+  }
+  const items = (data as { items: Record<string, unknown>[] }).items;
+  logWithLevel("info", requestId, "Collection fetched", {
+    collectionName,
+    count: items.length,
+  });
+  return items;
 }
 
-async function fetchFirstCollection(baseUrl: string, candidates: string[]): Promise<Record<string, unknown>[]> {
+async function fetchFirstCollection(baseUrl: string, candidates: string[], requestId: string, kind: "containers" | "pods"): Promise<Record<string, unknown>[]> {
   for (const candidate of candidates) {
     try {
-      const items = await fetchCollection(baseUrl, candidate);
-      if (items !== null) return items;
-    } catch {
-      // try next candidate
+      logWithLevel("info", requestId, "Trying Beszel collection candidate", {
+        kind,
+        candidate,
+      });
+      const items = await fetchCollection(baseUrl, candidate, requestId);
+      if (items !== null) {
+        logWithLevel("info", requestId, "Selected Beszel collection candidate", {
+          kind,
+          candidate,
+          count: items.length,
+        });
+        return items;
+      }
+      logWithLevel("info", requestId, "Beszel collection candidate not available", {
+        kind,
+        candidate,
+      });
+    } catch (error) {
+      logWithLevel("warn", requestId, "Beszel collection candidate failed; trying next", {
+        kind,
+        candidate,
+        error: formatError(error),
+      });
     }
   }
+  logWithLevel("warn", requestId, "No Beszel collection candidate matched", { kind, candidates });
   return [];
 }
 
@@ -282,6 +358,7 @@ function buildRuntimeRows(
   systems: Record<string, unknown>[],
   containerRecords: Record<string, unknown>[],
   podRecords: Record<string, unknown>[],
+  requestId: string,
 ): RuntimeRow[] {
   const containers = containerRecords.map(normalizeContainerRow);
   const pods = podRecords.map(normalizePodRow);
@@ -296,8 +373,18 @@ function buildRuntimeRows(
       return Array.isArray(source) ? (source as Record<string, unknown>[]) : [];
     });
 
-    if (containers.length === 0) containers.push(...embeddedContainers.map(normalizeContainerRow));
-    if (pods.length === 0) pods.push(...embeddedPods.map(normalizePodRow));
+    if (containers.length === 0) {
+      containers.push(...embeddedContainers.map(normalizeContainerRow));
+      logWithLevel("info", requestId, "Using embedded system container data", {
+        count: embeddedContainers.length,
+      });
+    }
+    if (pods.length === 0) {
+      pods.push(...embeddedPods.map(normalizePodRow));
+      logWithLevel("info", requestId, "Using embedded system pod data", {
+        count: embeddedPods.length,
+      });
+    }
   }
 
   return [...containers, ...pods];
@@ -339,20 +426,35 @@ function buildMockSnapshot(): Snapshot {
   };
 }
 
-async function buildBeszelSnapshot(): Promise<Snapshot> {
-  const systems = await fetchCollection(BESZEL_BASE_URL, "systems");
+async function buildBeszelSnapshot(requestId: string): Promise<Snapshot> {
+  logWithLevel("info", requestId, "Attempting Beszel snapshot", {
+    baseUrl: BESZEL_BASE_URL,
+  });
+  const systems = await fetchCollection(BESZEL_BASE_URL, "systems", requestId);
   if (!systems || systems.length === 0) {
+    logWithLevel("warn", requestId, "Beszel systems collection is empty or unavailable");
     throw new Error("No systems from Beszel");
   }
+  logWithLevel("info", requestId, "Fetched systems from Beszel", { count: systems.length });
 
   const [containers, pods] = await Promise.all([
-    fetchFirstCollection(BESZEL_BASE_URL, COLLECTION_CANDIDATES.containers),
-    fetchFirstCollection(BESZEL_BASE_URL, COLLECTION_CANDIDATES.pods),
+    fetchFirstCollection(BESZEL_BASE_URL, COLLECTION_CANDIDATES.containers, requestId, "containers"),
+    fetchFirstCollection(BESZEL_BASE_URL, COLLECTION_CANDIDATES.pods, requestId, "pods"),
   ]);
 
-  const rows = buildRuntimeRows(systems, containers, pods);
+  const rows = buildRuntimeRows(systems, containers, pods, requestId);
   const metrics = buildMetrics(systems);
   const summary = buildSummary(systems, rows);
+  if (rows.length === 0) {
+    logWithLevel("warn", requestId, "Beszel data produced zero runtime rows; using mock rows as fallback payload");
+  }
+  logWithLevel("info", requestId, "Built Beszel snapshot", {
+    hosts: summary.hosts,
+    containers: summary.containers,
+    pods: summary.pods,
+    alerts: summary.alerts,
+    rows: rows.length,
+  });
 
   return {
     source: "beszel",
@@ -364,13 +466,29 @@ async function buildBeszelSnapshot(): Promise<Snapshot> {
 }
 
 export const GET: APIRoute = async () => {
+  const requestId = makeRequestId();
+  logWithLevel("info", requestId, "Received /api/homelab request", {
+    baseUrl: BESZEL_BASE_URL,
+  });
   let snapshot: Snapshot;
 
   try {
-    snapshot = await buildBeszelSnapshot();
-  } catch {
+    snapshot = await buildBeszelSnapshot(requestId);
+  } catch (error) {
+    logWithLevel("warn", requestId, "Falling back to mock homelab snapshot", {
+      error: formatError(error),
+      baseUrl: BESZEL_BASE_URL,
+    });
     snapshot = buildMockSnapshot();
   }
+
+  logWithLevel("info", requestId, "Completed /api/homelab request", {
+    source: snapshot.source,
+    hosts: snapshot.summary.hosts,
+    containers: snapshot.summary.containers,
+    pods: snapshot.summary.pods,
+    alerts: snapshot.summary.alerts,
+  });
 
   return new Response(JSON.stringify(snapshot), {
     status: 200,
