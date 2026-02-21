@@ -551,12 +551,24 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
             <table class="w-full text-sm border-collapse runtime-table" data-runtime-table>
               <thead>
                 <tr data-head="containers">
-                  <th>{trans.copy.runtime.containersHead.name}</th>
-                  <th>{trans.copy.runtime.containersHead.image}</th>
-                  <th>{trans.copy.runtime.containersHead.status}</th>
-                  <th>{trans.copy.runtime.containersHead.cpu}</th>
-                  <th>{trans.copy.runtime.containersHead.memory}</th>
-                  <th>{trans.copy.runtime.containersHead.uptime}</th>
+                  <th>
+                    <button type="button" class="runtime-sort-btn" data-runtime-sort="name">{trans.copy.runtime.containersHead.name}</button>
+                  </th>
+                  <th>
+                    <button type="button" class="runtime-sort-btn" data-runtime-sort="image">{trans.copy.runtime.containersHead.image}</button>
+                  </th>
+                  <th>
+                    <button type="button" class="runtime-sort-btn" data-runtime-sort="status">{trans.copy.runtime.containersHead.status}</button>
+                  </th>
+                  <th>
+                    <button type="button" class="runtime-sort-btn" data-runtime-sort="cpu">{trans.copy.runtime.containersHead.cpu}</button>
+                  </th>
+                  <th>
+                    <button type="button" class="runtime-sort-btn" data-runtime-sort="memory">{trans.copy.runtime.containersHead.memory}</button>
+                  </th>
+                  <th>
+                    <button type="button" class="runtime-sort-btn" data-runtime-sort="uptime">{trans.copy.runtime.containersHead.uptime}</button>
+                  </th>
                 </tr>
               </thead>
               <tbody data-runtime-body>
@@ -575,7 +587,12 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
                       <td>{row.containers}</td>
                     )}
                     <td>
-                      <span class={`status-pill status-${row.status}`}>{trans.copy.runtime.statusLabels[row.status]}</span>
+                      <span
+                        class={`status-semaphore status-${row.status}`}
+                        role="img"
+                        aria-label={trans.copy.runtime.statusLabels[row.status]}
+                        title={trans.copy.runtime.statusLabels[row.status]}
+                      ></span>
                     </td>
                     <td>{row.cpu}</td>
                     <td>{row.memory}</td>
@@ -650,24 +667,39 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     opacity: 0.9;
   }
 
+  .status-semaphore {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    font-size: 0;
+    line-height: 1;
+  }
+
+  .status-semaphore::before {
+    content: "";
+    display: block;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.95;
+  }
+
   .status-running {
     color: rgb(34 197 94);
-    border-color: rgb(34 197 94 / 0.4);
   }
 
   .status-degraded {
     color: rgb(245 158 11);
-    border-color: rgb(245 158 11 / 0.4);
   }
 
   .status-exited {
     color: rgb(148 163 184);
-    border-color: rgb(148 163 184 / 0.4);
   }
 
   .status-pending {
     color: rgb(59 130 246);
-    border-color: rgb(59 130 246 / 0.4);
   }
 
   .runtime-tab-btn,
@@ -718,6 +750,44 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     font-weight: 600;
   }
 
+  .runtime-sort-btn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    cursor: pointer;
+  }
+
+  .runtime-sort-btn::after {
+    content: "";
+    font-size: 0.58rem;
+    opacity: 0;
+  }
+
+  .runtime-sort-btn.active::after {
+    opacity: 0.75;
+  }
+
+  .runtime-sort-btn.active[data-sort-direction="asc"]::after {
+    content: "\2191";
+  }
+
+  .runtime-sort-btn.active[data-sort-direction="desc"]::after {
+    content: "\2193";
+  }
+
+  .runtime-sort-btn:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 0.2rem;
+  }
+
   .runtime-table td {
     font-size: 0.8rem;
   }
@@ -740,6 +810,9 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
 </style>
 
 <script>
+  const RUNTIME_SORT_STORAGE_KEY = 'homelab-runtime-sort';
+  const RUNTIME_SORT_KEYS = ['name', 'image', 'status', 'cpu', 'memory', 'uptime'];
+
   function toNumber(value) {
     if (typeof value === 'number' && Number.isFinite(value)) return value;
     if (typeof value === 'string') {
@@ -753,8 +826,141 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     return Math.min(max, Math.max(min, value));
   }
 
+  function parseMemoryToMiB(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value !== 'string') return null;
+
+    const match = value.trim().match(/^([0-9]+(?:\.[0-9]+)?)\s*([a-zA-Z]+)?/);
+    if (!match) return toNumber(value);
+
+    const amount = Number.parseFloat(match[1]);
+    if (!Number.isFinite(amount)) return null;
+
+    const unit = (match[2] || '').toLowerCase();
+    if (unit === 'gib' || unit === 'gb' || unit === 'g') return amount * 1024;
+    if (unit === 'kib' || unit === 'kb' || unit === 'k') return amount / 1024;
+    if (unit === 'b') return amount / (1024 * 1024);
+    return amount;
+  }
+
+  function parseUptimeToSeconds(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value !== 'string') return null;
+
+    const parts = value.toLowerCase().match(/([0-9]+(?:\.[0-9]+)?)\s*([wdhms])/g);
+    if (!parts || parts.length === 0) return toNumber(value);
+
+    let seconds = 0;
+    for (const token of parts) {
+      const match = token.match(/([0-9]+(?:\.[0-9]+)?)\s*([wdhms])/);
+      if (!match) continue;
+
+      const amount = Number.parseFloat(match[1]);
+      const unit = match[2];
+      if (!Number.isFinite(amount)) continue;
+
+      if (unit === 'w') seconds += amount * 604800;
+      if (unit === 'd') seconds += amount * 86400;
+      if (unit === 'h') seconds += amount * 3600;
+      if (unit === 'm') seconds += amount * 60;
+      if (unit === 's') seconds += amount;
+    }
+
+    return Number.isFinite(seconds) ? seconds : null;
+  }
+
+  function getDefaultSortState() {
+    return { key: 'name', direction: 'asc' };
+  }
+
+  function loadSortState() {
+    try {
+      const raw = localStorage.getItem(RUNTIME_SORT_STORAGE_KEY);
+      if (!raw) return getDefaultSortState();
+
+      const parsed = JSON.parse(raw);
+      const key = typeof parsed?.key === 'string' ? parsed.key : '';
+      const direction = parsed?.direction === 'desc' ? 'desc' : 'asc';
+      if (!RUNTIME_SORT_KEYS.includes(key)) return getDefaultSortState();
+      return { key, direction };
+    } catch {
+      return getDefaultSortState();
+    }
+  }
+
+  function persistSortState(state) {
+    try {
+      localStorage.setItem(RUNTIME_SORT_STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // ignore storage failures (private mode, quota, etc.)
+    }
+  }
+
+  function extractRuntimeRow(row) {
+    const cells = Array.from(row.querySelectorAll('td'));
+    const type = row.dataset.rowType || 'containers';
+    const secondary = (cells[1]?.textContent || '').trim();
+
+    return {
+      type,
+      status: row.dataset.rowStatus || 'running',
+      name: (cells[0]?.textContent || '').trim(),
+      image: type === 'containers' ? secondary : '',
+      containers: type === 'pods' ? (toNumber(secondary) ?? 0) : undefined,
+      cpu: (cells[3]?.textContent || '').trim(),
+      memory: (cells[4]?.textContent || '').trim(),
+      uptime: (cells[5]?.textContent || '').trim(),
+    };
+  }
+
+  function getSortValue(row, key) {
+    if (key === 'name') return String(row.name || '').toLowerCase();
+    if (key === 'image') return String(row.image || '').toLowerCase();
+    if (key === 'status') return String(row.status || '').toLowerCase();
+    if (key === 'cpu') return toNumber(row.cpu);
+    if (key === 'memory') return parseMemoryToMiB(row.memory);
+    if (key === 'uptime') return parseUptimeToSeconds(row.uptime);
+    return String(row.name || '').toLowerCase();
+  }
+
+  function compareRows(a, b, key, direction) {
+    const directionFactor = direction === 'desc' ? -1 : 1;
+    const aValue = getSortValue(a, key);
+    const bValue = getSortValue(b, key);
+
+    if ((aValue === null || aValue === undefined) && (bValue === null || bValue === undefined)) return 0;
+    if (aValue === null || aValue === undefined) return 1;
+    if (bValue === null || bValue === undefined) return -1;
+
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      const result = (aValue - bValue) * directionFactor;
+      if (result !== 0) return result;
+    } else {
+      const result = String(aValue).localeCompare(String(bValue), undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      }) * directionFactor;
+      if (result !== 0) return result;
+    }
+
+    return String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
   function renderRuntimeRow(row, labels) {
     const statusLabel = labels[row.status] || row.status;
+    const escapedStatusLabel = escapeHtml(statusLabel);
     const secondary = row.type === 'containers'
       ? `<td class="mono opacity-70">${row.image || 'n/a'}</td>`
       : `<td>${row.containers ?? 0}</td>`;
@@ -768,7 +974,7 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
       >
         <td class="mono">${row.name}</td>
         ${secondary}
-        <td><span class="status-pill status-${row.status}">${statusLabel}</span></td>
+        <td><span class="status-semaphore status-${row.status}" role="img" aria-label="${escapedStatusLabel}" title="${escapedStatusLabel}"></span></td>
         <td>${row.cpu}</td>
         <td>${row.memory}</td>
         <td>${row.uptime}</td>
@@ -798,6 +1004,7 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     const runtimeBody = section.querySelector('[data-runtime-body]');
     let rows = Array.from(section.querySelectorAll('[data-runtime-row]'));
     const headRows = Array.from(section.querySelectorAll('thead tr[data-head]'));
+    const sortButtons = Array.from(section.querySelectorAll('[data-runtime-sort]'));
     const searchInput = section.querySelector('[data-runtime-search]');
     const emptyState = section.querySelector('[data-runtime-empty]');
     const metricCards = Array.from(section.querySelectorAll('[data-metric]'));
@@ -818,11 +1025,21 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     let currentTab = 'containers';
     let currentFilter = 'all';
     let query = '';
-    let runtimeRows = rows.map((row) => ({
-      type: row.dataset.rowType || 'containers',
-      status: row.dataset.rowStatus || 'running',
-      name: row.dataset.rowName || '',
-    }));
+    let currentSort = loadSortState();
+    let runtimeRows = rows.map((row) => extractRuntimeRow(row));
+
+    function sortRows(rowsData) {
+      return [...rowsData].sort((a, b) => compareRows(a, b, currentSort.key, currentSort.direction));
+    }
+
+    function syncSortButtons() {
+      sortButtons.forEach((button) => {
+        const key = button.dataset.runtimeSort || '';
+        const isActive = key === currentSort.key;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('data-sort-direction', isActive ? currentSort.direction : '');
+      });
+    }
 
     function applyState() {
       tabButtons.forEach((button) => {
@@ -891,9 +1108,11 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     function setRows(nextRows) {
       if (!runtimeBody) return;
 
-      runtimeBody.innerHTML = nextRows.map((row) => renderRuntimeRow(row, statusLabels)).join('');
+      const sortedRows = sortRows(nextRows);
+      runtimeBody.innerHTML = sortedRows.map((row) => renderRuntimeRow(row, statusLabels)).join('');
       rows = Array.from(section.querySelectorAll('[data-runtime-row]'));
-      runtimeRows = nextRows;
+      runtimeRows = sortedRows;
+      syncSortButtons();
       applyState();
     }
 
@@ -947,9 +1166,25 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
       applyState();
     });
 
+    sortButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const key = button.dataset.runtimeSort;
+        if (!key || !RUNTIME_SORT_KEYS.includes(key)) return;
+
+        if (currentSort.key === key) {
+          currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort = { key, direction: 'asc' };
+        }
+
+        persistSortState(currentSort);
+        setRows(runtimeRows);
+      });
+    });
+
     refreshButton?.addEventListener('click', refreshFromSource);
 
-    applyState();
+    setRows(runtimeRows);
     refreshFromSource();
   }
 
