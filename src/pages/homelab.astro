@@ -18,6 +18,7 @@ type Copy = {
   toolbar: {
     source: string;
     sourceValue: string;
+    systemSpecs: string;
     refresh: string;
     lastSync: string;
   };
@@ -104,6 +105,7 @@ const copyByLocale: Record<Locale, Copy> = {
     toolbar: {
       source: "Quelle",
       sourceValue: "lokaler Snapshot",
+      systemSpecs: "System",
       refresh: "Tick simulieren",
       lastSync: "Letzter Sync",
     },
@@ -174,6 +176,7 @@ const copyByLocale: Record<Locale, Copy> = {
     toolbar: {
       source: "Source",
       sourceValue: "local snapshot",
+      systemSpecs: "System",
       refresh: "Simulate tick",
       lastSync: "Last sync",
     },
@@ -244,6 +247,7 @@ const copyByLocale: Record<Locale, Copy> = {
     toolbar: {
       source: "Fuente",
       sourceValue: "snapshot local",
+      systemSpecs: "Sistema",
       refresh: "Simular tick",
       lastSync: "Ultimo sync",
     },
@@ -401,40 +405,13 @@ const runtimeRows: RuntimeRow[] = [
     uptime: "stopped",
   },
   {
-    type: "pods",
-    name: "edge-stack",
+    type: "containers",
+    name: "homepage",
+    image: "ghcr.io/jhoogstraat/homepage:latest",
     status: "running",
-    containers: 3,
-    cpu: "9.9%",
-    memory: "812MiB",
-    uptime: "12d 04h",
-  },
-  {
-    type: "pods",
-    name: "forge-stack",
-    status: "running",
-    containers: 2,
-    cpu: "12.0%",
-    memory: "724MiB",
-    uptime: "8d 21h",
-  },
-  {
-    type: "pods",
-    name: "auth-stack",
-    status: "degraded",
-    containers: 2,
-    cpu: "24.8%",
-    memory: "701MiB",
-    uptime: "5d 13h",
-  },
-  {
-    type: "pods",
-    name: "backup-stack",
-    status: "pending",
-    containers: 2,
-    cpu: "1.1%",
-    memory: "92MiB",
-    uptime: "starting",
+    cpu: "0.5%",
+    memory: "31MiB",
+    uptime: "Up 3 minutes",
   },
 ];
 
@@ -491,6 +468,7 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
         <div class="telemetry-surface border border-border rounded-lg p-3 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div class="text-xs opacity-70 flex flex-wrap items-center gap-3">
             <span>{trans.copy.toolbar.source}: <strong class="opacity-90">{trans.copy.toolbar.sourceValue}</strong></span>
+            <span>{trans.copy.toolbar.systemSpecs}: <span data-system-spec>Cortex-A72 · 4C/4T · 7.6 GiB · fedora · aarch64</span></span>
             <span>{trans.copy.toolbar.lastSync}: <span data-last-sync>2026-02-17 18:40 UTC</span></span>
           </div>
           <button type="button" class="text-xs px-3 py-1.5 rounded border border-border hover:border-primary transition-colors" data-homelab-refresh>
@@ -552,7 +530,6 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
           <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
             <div class="flex flex-wrap gap-2">
               <button type="button" class="runtime-tab-btn active" data-runtime-tab="containers">{trans.copy.runtime.tabs.containers}</button>
-              <button type="button" class="runtime-tab-btn" data-runtime-tab="pods">{trans.copy.runtime.tabs.pods}</button>
             </div>
             <input
               type="search"
@@ -580,14 +557,6 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
                   <th>{trans.copy.runtime.containersHead.cpu}</th>
                   <th>{trans.copy.runtime.containersHead.memory}</th>
                   <th>{trans.copy.runtime.containersHead.uptime}</th>
-                </tr>
-                <tr data-head="pods" class="hidden">
-                  <th>{trans.copy.runtime.podsHead.name}</th>
-                  <th>{trans.copy.runtime.podsHead.containers}</th>
-                  <th>{trans.copy.runtime.podsHead.status}</th>
-                  <th>{trans.copy.runtime.podsHead.cpu}</th>
-                  <th>{trans.copy.runtime.podsHead.memory}</th>
-                  <th>{trans.copy.runtime.podsHead.uptime}</th>
                 </tr>
               </thead>
               <tbody data-runtime-body>
@@ -834,6 +803,7 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     const metricCards = Array.from(section.querySelectorAll('[data-metric]'));
     const refreshButton = section.querySelector('[data-homelab-refresh]');
     const lastSync = section.querySelector('[data-last-sync]');
+    const systemSpec = section.querySelector('[data-system-spec]');
     const summaryHosts = section.querySelector('[data-summary-hosts]');
     const summaryContainers = section.querySelector('[data-summary-containers]');
     const summaryPods = section.querySelector('[data-summary-pods]');
@@ -912,8 +882,14 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
       }
     }
 
+    function applySystem(system) {
+      if (!systemSpec) return;
+      const specs = typeof system?.specs === 'string' && system.specs.trim().length > 0 ? system.specs.trim() : 'n/a';
+      systemSpec.textContent = specs;
+    }
+
     function setRows(nextRows) {
-      if (!runtimeBody || nextRows.length === 0) return;
+      if (!runtimeBody) return;
 
       runtimeBody.innerHTML = nextRows.map((row) => renderRuntimeRow(row, statusLabels)).join('');
       rows = Array.from(section.querySelectorAll('[data-runtime-row]'));
@@ -936,10 +912,11 @@ const defaultTrans = translations.find((item) => item.locale === defaultLocale) 
     async function refreshFromSource() {
       try {
         const snapshot = await fetchHomelabSnapshot();
-        if (snapshot && Array.isArray(snapshot.rows) && snapshot.rows.length > 0) {
+        if (snapshot && Array.isArray(snapshot.rows)) {
           setRows(snapshot.rows);
           applySummary(snapshot.summary, snapshot.rows);
           applyMetrics(snapshot.metrics || null);
+          applySystem(snapshot.system || null);
           if (lastSync && snapshot.syncedAt) {
             lastSync.textContent = String(snapshot.syncedAt).replace('T', ' ').replace('Z', ' UTC');
           }

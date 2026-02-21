@@ -5,14 +5,27 @@ export const prerender = false;
 type Status = "running" | "degraded" | "exited" | "pending";
 
 type RuntimeRow = {
-  type: "containers" | "pods";
+  type: "containers";
   name: string;
   image?: string;
-  containers?: number;
   status: Status;
   cpu: string;
   memory: string;
   uptime: string;
+};
+
+type SystemDetails = {
+  name: string;
+  host: string;
+  specs: string;
+  arch: string | null;
+  cpu: string | null;
+  cores: number | null;
+  threads: number | null;
+  memoryBytes: number | null;
+  osName: string | null;
+  kernel: string | null;
+  updated: string | null;
 };
 
 type Snapshot = {
@@ -31,17 +44,20 @@ type Snapshot = {
     thermal: number;
   };
   rows: RuntimeRow[];
+  system: SystemDetails | null;
+};
+
+type FetchOptions = {
+  perPage?: number;
+  sort?: string;
+  filter?: string;
 };
 
 const HOMELAB_LOG_PREFIX = "[api/homelab]";
 const BESZEL_BASE_URL_FALLBACK = "http://127.0.0.1:8090";
 const BESZEL_AUTH_PATH_FALLBACK = "api/collections/users/auth-with-password";
+const BESZEL_SYSTEM_NAME_FALLBACK = "pi1";
 const RESPONSE_SNIPPET_MAX_LENGTH = 400;
-
-const COLLECTION_CANDIDATES = {
-  containers: ["containers", "container_stats"],
-  pods: ["pods", "podman_pods"],
-};
 
 const mockRows: RuntimeRow[] = [
   {
@@ -51,7 +67,7 @@ const mockRows: RuntimeRow[] = [
     status: "running",
     cpu: "3.8%",
     memory: "142MiB",
-    uptime: "12d 04h",
+    uptime: "Up 12d",
   },
   {
     type: "containers",
@@ -60,7 +76,7 @@ const mockRows: RuntimeRow[] = [
     status: "running",
     cpu: "8.1%",
     memory: "512MiB",
-    uptime: "8d 21h",
+    uptime: "Up 8d",
   },
   {
     type: "containers",
@@ -69,7 +85,7 @@ const mockRows: RuntimeRow[] = [
     status: "degraded",
     cpu: "21.4%",
     memory: "338MiB",
-    uptime: "5d 13h",
+    uptime: "Up 5d",
   },
   {
     type: "containers",
@@ -78,7 +94,7 @@ const mockRows: RuntimeRow[] = [
     status: "running",
     cpu: "5.2%",
     memory: "406MiB",
-    uptime: "14d 02h",
+    uptime: "Up 14d",
   },
   {
     type: "containers",
@@ -87,43 +103,7 @@ const mockRows: RuntimeRow[] = [
     status: "exited",
     cpu: "0.0%",
     memory: "0MiB",
-    uptime: "stopped",
-  },
-  {
-    type: "pods",
-    name: "edge-stack",
-    status: "running",
-    containers: 3,
-    cpu: "9.9%",
-    memory: "812MiB",
-    uptime: "12d 04h",
-  },
-  {
-    type: "pods",
-    name: "forge-stack",
-    status: "running",
-    containers: 2,
-    cpu: "12.0%",
-    memory: "724MiB",
-    uptime: "8d 21h",
-  },
-  {
-    type: "pods",
-    name: "auth-stack",
-    status: "degraded",
-    containers: 2,
-    cpu: "24.8%",
-    memory: "701MiB",
-    uptime: "5d 13h",
-  },
-  {
-    type: "pods",
-    name: "backup-stack",
-    status: "pending",
-    containers: 2,
-    cpu: "1.1%",
-    memory: "92MiB",
-    uptime: "starting",
+    uptime: "Exited",
   },
 ];
 
@@ -170,12 +150,95 @@ function resolveBeszelBaseUrl(): string {
   return resolveRuntimeEnv("BESZEL_BASE_URL") || BESZEL_BASE_URL_FALLBACK;
 }
 
+function resolveBeszelSystemName(): string {
+  return resolveRuntimeEnv("BESZEL_SYSTEM_NAME") || BESZEL_SYSTEM_NAME_FALLBACK;
+}
+
 function resolveBeszelAuthConfig(): { email?: string; password?: string; authPath: string } {
   return {
     email: resolveRuntimeEnv("BESZEL_PB_EMAIL"),
     password: resolveRuntimeEnv("BESZEL_PB_PASSWORD"),
     authPath: resolveRuntimeEnv("BESZEL_PB_AUTH_PATH") || BESZEL_AUTH_PATH_FALLBACK,
   };
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as Record<string, unknown>;
+}
+
+function asString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function toNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value.replace(/[^0-9.-]/g, ""));
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function normalizeStatus(value: unknown): Status {
+  const status = String(value || "").toLowerCase();
+  if (status.includes("running") || status.includes("up") || status.includes("healthy") || status.includes("active")) {
+    return "running";
+  }
+  if (status.includes("degraded") || status.includes("warning") || status.includes("unhealthy") || status.includes("error")) {
+    return "degraded";
+  }
+  if (status.includes("pending") || status.includes("starting") || status.includes("init") || status.includes("create")) {
+    return "pending";
+  }
+  if (status.includes("exit") || status.includes("stopped") || status.includes("dead") || status.includes("inactive")) {
+    return "exited";
+  }
+  return "running";
+}
+
+function formatPercent(value: unknown, fallback = "0.0%"): string {
+  const parsed = toNumber(value);
+  if (parsed === null) return fallback;
+  return `${Math.max(0, parsed).toFixed(1)}%`;
+}
+
+function formatBytes(value: unknown, fallback = "0MiB"): string {
+  const parsed = toNumber(value);
+  if (parsed === null) return fallback;
+  if (parsed <= 0) return "0MiB";
+  const mib = parsed > 10_000 ? parsed / (1024 * 1024) : parsed;
+  return `${Math.round(mib)}MiB`;
+}
+
+function formatMemoryBytes(bytes: number | null): string {
+  if (bytes === null || bytes <= 0) return "mem n/a";
+  const gib = bytes / (1024 ** 3);
+  if (gib >= 1) {
+    const rounded = gib >= 10 ? Math.round(gib) : Math.round(gib * 10) / 10;
+    return `${rounded} GiB`;
+  }
+  return `${Math.round(bytes / (1024 ** 2))} MiB`;
+}
+
+function joinUrl(base: string, path: string): string {
+  const trimmedBase = String(base || "").replace(/\/+$/, "");
+  const normalizedPath = String(path || "").replace(/^\/+/, "");
+  return `${trimmedBase}/${normalizedPath}`;
+}
+
+function escapeFilterValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+function buildCollectionUrl(baseUrl: string, collectionName: string, options: FetchOptions = {}): string {
+  const params = new URLSearchParams();
+  params.set("perPage", String(options.perPage ?? 200));
+  if (options.sort) params.set("sort", options.sort);
+  if (options.filter) params.set("filter", options.filter);
+  return joinUrl(baseUrl, `api/collections/${collectionName}/records?${params.toString()}`);
 }
 
 async function readResponseSnippet(response: Response): Promise<string | null> {
@@ -239,89 +302,6 @@ async function resolveBeszelAuthToken(baseUrl: string, requestId: string): Promi
   return payload.token;
 }
 
-function toNumber(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const parsed = Number.parseFloat(value.replace(/[^0-9.-]/g, ""));
-    if (Number.isFinite(parsed)) return parsed;
-  }
-  return null;
-}
-
-function getPath(obj: unknown, path: string): unknown {
-  if (!obj || !path) return undefined;
-  return path.split(".").reduce((current: unknown, key) => {
-    if (current && typeof current === "object" && key in (current as Record<string, unknown>)) {
-      return (current as Record<string, unknown>)[key];
-    }
-    return undefined;
-  }, obj);
-}
-
-function pickNumber(obj: unknown, paths: string[]): number | null {
-  for (const path of paths) {
-    const value = toNumber(getPath(obj, path));
-    if (value !== null) return value;
-  }
-  return null;
-}
-
-function pickString(obj: unknown, paths: string[], fallback = ""): string {
-  for (const path of paths) {
-    const value = getPath(obj, path);
-    if (typeof value === "string" && value.trim().length > 0) return value.trim();
-  }
-  return fallback;
-}
-
-function normalizeStatus(value: unknown): Status {
-  const status = String(value || "").toLowerCase();
-  if (status.includes("running") || status.includes("up") || status.includes("healthy") || status.includes("active")) {
-    return "running";
-  }
-  if (status.includes("degraded") || status.includes("warning") || status.includes("unhealthy") || status.includes("error")) {
-    return "degraded";
-  }
-  if (status.includes("pending") || status.includes("starting") || status.includes("init") || status.includes("create")) {
-    return "pending";
-  }
-  if (status.includes("exit") || status.includes("stopped") || status.includes("dead") || status.includes("inactive")) {
-    return "exited";
-  }
-  return "running";
-}
-
-function formatPercent(value: unknown, fallback = "0.0%"): string {
-  const parsed = toNumber(value);
-  if (parsed === null) return fallback;
-  return `${Math.max(0, parsed).toFixed(1)}%`;
-}
-
-function formatBytes(value: unknown, fallback = "0MiB"): string {
-  const parsed = toNumber(value);
-  if (parsed === null) return typeof value === "string" ? value : fallback;
-  if (parsed <= 0) return "0MiB";
-  const mib = parsed > 10_000 ? parsed / (1024 * 1024) : parsed;
-  return `${Math.round(mib)}MiB`;
-}
-
-function formatUptime(value: unknown): string {
-  if (typeof value === "string" && value.trim().length > 0) return value.trim();
-  const seconds = toNumber(value);
-  if (seconds === null || seconds < 0) return "n/a";
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  if (days > 0) return `${days}d ${hours}h`;
-  const minutes = Math.floor((seconds % 3600) / 60);
-  return `${hours}h ${minutes}m`;
-}
-
-function joinUrl(base: string, path: string): string {
-  const trimmedBase = String(base || "").replace(/\/+$/, "");
-  const normalizedPath = String(path || "").replace(/^\/+/, "");
-  return `${trimmedBase}/${normalizedPath}`;
-}
-
 async function fetchJson(url: string, requestId: string, authToken?: string, timeout = 5000): Promise<unknown | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -345,17 +325,15 @@ async function fetchJson(url: string, requestId: string, authToken?: string, tim
       return null;
     }
     if (!response.ok) {
+      const snippet = await readResponseSnippet(response);
       logWithLevel("warn", requestId, "Beszel URL returned non-OK status", {
         url,
         status: response.status,
+        responseBody: snippet,
       });
       throw new Error(`HTTP ${response.status}`);
     }
 
-    logWithLevel("info", requestId, "Beszel URL returned JSON payload", {
-      url,
-      status: response.status,
-    });
     return await response.json();
   } catch (error) {
     logWithLevel("warn", requestId, "Failed Beszel URL fetch", {
@@ -368,151 +346,156 @@ async function fetchJson(url: string, requestId: string, authToken?: string, tim
   }
 }
 
-async function fetchCollection(baseUrl: string, collectionName: string, requestId: string, authToken?: string): Promise<Record<string, unknown>[] | null> {
-  const url = joinUrl(baseUrl, `api/collections/${collectionName}/records?perPage=200&sort=-updated`);
+async function fetchCollection(
+  baseUrl: string,
+  collectionName: string,
+  requestId: string,
+  authToken?: string,
+  options: FetchOptions = {},
+): Promise<Record<string, unknown>[] | null> {
+  const url = buildCollectionUrl(baseUrl, collectionName, options);
   const data = await fetchJson(url, requestId, authToken);
-  if (!data || typeof data !== "object" || !Array.isArray((data as { items?: unknown[] }).items)) {
+  const record = asRecord(data);
+  const items = record?.items;
+  if (!Array.isArray(items)) {
     logWithLevel("info", requestId, "Collection payload missing items array", {
       collectionName,
       url,
     });
     return null;
   }
-  const items = (data as { items: Record<string, unknown>[] }).items;
+
+  const typedItems = items
+    .map((item) => asRecord(item))
+    .filter((item): item is Record<string, unknown> => Boolean(item));
+
   logWithLevel("info", requestId, "Collection fetched", {
     collectionName,
-    count: items.length,
+    count: typedItems.length,
   });
-  return items;
+
+  return typedItems;
 }
 
-async function fetchFirstCollection(
+async function fetchRecordByName(
   baseUrl: string,
-  candidates: string[],
+  collectionName: string,
+  name: string,
   requestId: string,
-  kind: "containers" | "pods",
   authToken?: string,
-): Promise<Record<string, unknown>[]> {
-  for (const candidate of candidates) {
-    try {
-      logWithLevel("info", requestId, "Trying Beszel collection candidate", {
-        kind,
-        candidate,
-      });
-      const items = await fetchCollection(baseUrl, candidate, requestId, authToken);
-      if (items !== null) {
-        logWithLevel("info", requestId, "Selected Beszel collection candidate", {
-          kind,
-          candidate,
-          count: items.length,
-        });
-        return items;
-      }
-      logWithLevel("info", requestId, "Beszel collection candidate not available", {
-        kind,
-        candidate,
-      });
-    } catch (error) {
-      logWithLevel("warn", requestId, "Beszel collection candidate failed; trying next", {
-        kind,
-        candidate,
-        error: formatError(error),
-      });
-    }
+): Promise<Record<string, unknown> | null> {
+  return fetchSingleRecordByFilter(
+    baseUrl,
+    collectionName,
+    `name='${escapeFilterValue(name)}'`,
+    requestId,
+    authToken,
+  );
+}
+
+async function fetchSingleRecordByFilter(
+  baseUrl: string,
+  collectionName: string,
+  filter: string,
+  requestId: string,
+  authToken?: string,
+): Promise<Record<string, unknown> | null> {
+  const items = await fetchCollection(baseUrl, collectionName, requestId, authToken, {
+    perPage: 1,
+    sort: "-updated",
+    filter,
+  });
+
+  if (!items || items.length === 0) {
+    logWithLevel("warn", requestId, "No record found for collection/name", {
+      collectionName,
+      name,
+    });
+    return null;
   }
-  logWithLevel("warn", requestId, "No Beszel collection candidate matched", { kind, candidates });
-  return [];
+
+  return items[0];
 }
 
 function normalizeContainerRow(raw: Record<string, unknown>): RuntimeRow {
-  const status = normalizeStatus(pickString(raw, ["status", "state", "container_status", "info.status"], "running"));
-  const name = pickString(raw, ["name", "container", "container_name"], "unknown-container");
-
+  const statusText = asString(raw.status) || "";
   return {
     type: "containers",
-    name,
-    image: pickString(raw, ["image", "image_name", "container_image"], "n/a"),
-    status,
-    cpu: formatPercent(pickNumber(raw, ["cpu", "cpu_percent", "stats.cpu", "info.cpu"])),
-    memory: formatBytes(pickNumber(raw, ["memory", "mem", "memory_usage", "stats.memory", "info.memory"]), "n/a"),
-    uptime: formatUptime(pickString(raw, ["uptime", "running_for", "started"]) || pickNumber(raw, ["uptime_seconds"])),
+    name: asString(raw.name) || "unknown-container",
+    image: asString(raw.image) || "n/a",
+    status: normalizeStatus(statusText),
+    cpu: formatPercent(raw.cpu),
+    memory: formatBytes(raw.memory),
+    uptime: statusText || "n/a",
   };
 }
 
-function normalizePodRow(raw: Record<string, unknown>): RuntimeRow {
-  const status = normalizeStatus(pickString(raw, ["status", "state", "pod_status", "info.status"], "running"));
-  const name = pickString(raw, ["name", "pod", "pod_name"], "unknown-pod");
-
-  return {
-    type: "pods",
-    name,
-    containers: Math.max(0, Math.round(pickNumber(raw, ["containers", "container_count", "stats.containers"]) ?? 0)),
-    status,
-    cpu: formatPercent(pickNumber(raw, ["cpu", "cpu_percent", "stats.cpu", "info.cpu"])),
-    memory: formatBytes(pickNumber(raw, ["memory", "mem", "memory_usage", "stats.memory", "info.memory"]), "n/a"),
-    uptime: formatUptime(pickString(raw, ["uptime", "running_for", "started"]) || pickNumber(raw, ["uptime_seconds"])),
-  };
-}
-
-function buildRuntimeRows(
-  systems: Record<string, unknown>[],
-  containerRecords: Record<string, unknown>[],
-  podRecords: Record<string, unknown>[],
-  requestId: string,
-): RuntimeRow[] {
-  const containers = containerRecords.map(normalizeContainerRow);
-  const pods = podRecords.map(normalizePodRow);
-
-  if (containers.length === 0 || pods.length === 0) {
-    const embeddedContainers = systems.flatMap((system) => {
-      const source = getPath(system, "containers") || getPath(system, "info.containers");
-      return Array.isArray(source) ? (source as Record<string, unknown>[]) : [];
-    });
-    const embeddedPods = systems.flatMap((system) => {
-      const source = getPath(system, "pods") || getPath(system, "info.pods");
-      return Array.isArray(source) ? (source as Record<string, unknown>[]) : [];
-    });
-
-    if (containers.length === 0) {
-      containers.push(...embeddedContainers.map(normalizeContainerRow));
-      logWithLevel("info", requestId, "Using embedded system container data", {
-        count: embeddedContainers.length,
-      });
-    }
-    if (pods.length === 0) {
-      pods.push(...embeddedPods.map(normalizePodRow));
-      logWithLevel("info", requestId, "Using embedded system pod data", {
-        count: embeddedPods.length,
-      });
-    }
-  }
-
-  return [...containers, ...pods];
-}
-
-function buildMetrics(systems: Record<string, unknown>[]): Snapshot["metrics"] {
-  const primary = systems.find((system) => normalizeStatus((system as Record<string, unknown>).status) === "running") || systems[0];
-  if (!primary) {
+function buildMetrics(systemRecord: Record<string, unknown> | null): Snapshot["metrics"] {
+  if (!systemRecord) {
     return { cpu: 34, memory: 62, disk: 48, thermal: 57 };
   }
 
+  const info = asRecord(systemRecord.info);
   return {
-    cpu: Math.round(pickNumber(primary, ["info.cpu", "cpu", "stats.cpu"]) ?? 34),
-    memory: Math.round(pickNumber(primary, ["info.mp", "info.memory", "memory", "stats.memory"]) ?? 62),
-    disk: Math.round(pickNumber(primary, ["info.dp", "info.disk", "disk", "stats.disk"]) ?? 48),
-    thermal: Math.round(pickNumber(primary, ["info.temp", "temperature", "stats.temp"]) ?? 57),
+    cpu: Math.round(toNumber(info?.cpu) ?? 34),
+    memory: Math.round(toNumber(info?.mp) ?? 62),
+    disk: Math.round(toNumber(info?.dp) ?? 48),
+    thermal: Math.round(toNumber(info?.dt) ?? 57),
   };
 }
 
-function buildSummary(systems: Record<string, unknown>[], rows: RuntimeRow[]): Snapshot["summary"] {
-  const containers = rows.filter((row) => row.type === "containers");
-  const pods = rows.filter((row) => row.type === "pods");
+function buildSummary(systemRecord: Record<string, unknown> | null, rows: RuntimeRow[]): Snapshot["summary"] {
   const alerts = rows.filter((row) => row.status === "degraded" || row.status === "pending");
   return {
-    hosts: systems.length,
-    containers: containers.length,
-    pods: pods.length,
+    hosts: systemRecord ? 1 : 0,
+    containers: rows.length,
+    pods: 0,
     alerts: alerts.length,
+  };
+}
+
+function buildSystemDetails(
+  systemName: string,
+  systemRecord: Record<string, unknown> | null,
+  detailsRecord: Record<string, unknown> | null,
+): SystemDetails | null {
+  if (!systemRecord && !detailsRecord) return null;
+
+  const name = asString(systemRecord?.name) || systemName;
+  const host = asString(detailsRecord?.hostname) || asString(systemRecord?.host) || "n/a";
+  const cpu = asString(detailsRecord?.cpu);
+  const arch = asString(detailsRecord?.arch);
+  const osName = asString(detailsRecord?.os_name);
+  const kernel = asString(detailsRecord?.kernel);
+  const cores = toNumber(detailsRecord?.cores);
+  const threads = toNumber(detailsRecord?.threads);
+  const memoryBytes = toNumber(detailsRecord?.memory);
+  const updated = asString(detailsRecord?.updated) || asString(systemRecord?.updated);
+
+  const coreSpec = cores !== null
+    ? `${Math.round(cores)}C/${Math.round(threads ?? cores)}T`
+    : null;
+
+  const specsParts = [
+    cpu,
+    coreSpec,
+    formatMemoryBytes(memoryBytes),
+    osName,
+    arch,
+  ].filter((part): part is string => Boolean(part && part.trim().length > 0));
+
+  return {
+    name,
+    host,
+    specs: specsParts.length > 0 ? specsParts.join(" · ") : "n/a",
+    arch,
+    cpu,
+    cores: cores === null ? null : Math.round(cores),
+    threads: threads === null ? null : Math.round(threads),
+    memoryBytes,
+    osName,
+    kernel,
+    updated: updated || null,
   };
 }
 
@@ -520,41 +503,80 @@ function buildMockSnapshot(): Snapshot {
   return {
     source: "mock",
     syncedAt: new Date().toISOString(),
-    summary: buildSummary([], mockRows),
+    summary: {
+      hosts: 1,
+      containers: mockRows.length,
+      pods: 0,
+      alerts: mockRows.filter((row) => row.status === "degraded" || row.status === "pending").length,
+    },
     metrics: { cpu: 34, memory: 62, disk: 48, thermal: 57 },
     rows: mockRows,
+    system: {
+      name: BESZEL_SYSTEM_NAME_FALLBACK,
+      host: "beszel",
+      specs: "Cortex-A72 · 4C/4T · 7.6 GiB · fedora · aarch64",
+      arch: "aarch64",
+      cpu: "Cortex-A72",
+      cores: 4,
+      threads: 4,
+      memoryBytes: 8147894272,
+      osName: "fedora",
+      kernel: "6.18.3-200.fc43.aarch64",
+      updated: new Date().toISOString(),
+    },
   };
 }
 
 async function buildBeszelSnapshot(baseUrl: string, requestId: string): Promise<Snapshot> {
-  logWithLevel("info", requestId, "Attempting Beszel snapshot", {
+  const systemName = resolveBeszelSystemName();
+
+  logWithLevel("info", requestId, "Attempting strict Beszel snapshot with system-scoped filters", {
     baseUrl,
+    systemName,
+    collections: ["containers", "systems", "system_details"],
   });
+
   const authToken = await resolveBeszelAuthToken(baseUrl, requestId);
-  const systems = await fetchCollection(baseUrl, "systems", requestId, authToken);
-  if (!systems || systems.length === 0) {
-    logWithLevel("warn", requestId, "Beszel systems collection is empty or unavailable");
-    throw new Error("No systems from Beszel");
-  }
-  logWithLevel("info", requestId, "Fetched systems from Beszel", { count: systems.length });
 
-  const [containers, pods] = await Promise.all([
-    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.containers, requestId, "containers", authToken),
-    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.pods, requestId, "pods", authToken),
-  ]);
-
-  const rows = buildRuntimeRows(systems, containers, pods, requestId);
-  const metrics = buildMetrics(systems);
-  const summary = buildSummary(systems, rows);
-  if (rows.length === 0) {
-    logWithLevel("warn", requestId, "Beszel data produced zero runtime rows; using mock rows as fallback payload");
+  const systemRecord = await fetchRecordByName(baseUrl, "systems", systemName, requestId, authToken);
+  if (!systemRecord) {
+    throw new Error(`System '${systemName}' not found`);
   }
-  logWithLevel("info", requestId, "Built Beszel snapshot", {
+
+  const systemId = asString(systemRecord.id);
+  if (!systemId) {
+    throw new Error(`System '${systemName}' record is missing id`);
+  }
+
+  const systemFilter = `system='${escapeFilterValue(systemId)}'`;
+  logWithLevel("info", requestId, "Resolved system id for filters", {
+    systemName,
+    systemId,
+    systemFilter,
+  });
+
+  const containers = await fetchCollection(baseUrl, "containers", requestId, authToken, {
+    perPage: 200,
+    sort: "-updated",
+    filter: systemFilter,
+  });
+  if (!containers) {
+    throw new Error("Containers collection unavailable");
+  }
+
+  const rows = containers.map(normalizeContainerRow);
+  const detailsRecord = await fetchSingleRecordByFilter(baseUrl, "system_details", systemFilter, requestId, authToken);
+
+  const metrics = buildMetrics(systemRecord);
+  const summary = buildSummary(systemRecord, rows);
+  const system = buildSystemDetails(systemName, systemRecord, detailsRecord);
+
+  logWithLevel("info", requestId, "Built strict Beszel snapshot", {
     hosts: summary.hosts,
     containers: summary.containers,
     pods: summary.pods,
     alerts: summary.alerts,
-    rows: rows.length,
+    hasSystem: Boolean(system),
   });
 
   return {
@@ -562,16 +584,19 @@ async function buildBeszelSnapshot(baseUrl: string, requestId: string): Promise<
     syncedAt: new Date().toISOString(),
     summary,
     metrics,
-    rows: rows.length > 0 ? rows : mockRows,
+    rows,
+    system,
   };
 }
 
 export const GET: APIRoute = async () => {
   const requestId = makeRequestId();
   const baseUrl = resolveBeszelBaseUrl();
+
   logWithLevel("info", requestId, "Received /api/homelab request", {
     baseUrl,
   });
+
   let snapshot: Snapshot;
 
   try {
@@ -590,6 +615,7 @@ export const GET: APIRoute = async () => {
     containers: snapshot.summary.containers,
     pods: snapshot.summary.pods,
     alerts: snapshot.summary.alerts,
+    system: snapshot.system?.specs || null,
   });
 
   return new Response(JSON.stringify(snapshot), {
