@@ -33,8 +33,8 @@ type Snapshot = {
   rows: RuntimeRow[];
 };
 
-const BESZEL_BASE_URL = import.meta.env.BESZEL_BASE_URL || "http://127.0.0.1:8090";
 const HOMELAB_LOG_PREFIX = "[api/homelab]";
+const BESZEL_BASE_URL_FALLBACK = "http://127.0.0.1:8090";
 
 const COLLECTION_CANDIDATES = {
   containers: ["containers", "container_stats"],
@@ -147,6 +147,21 @@ function formatError(error: unknown): Record<string, string> {
     };
   }
   return { message: String(error) };
+}
+
+function resolveBeszelBaseUrl(): string {
+  const processEnv = typeof process !== "undefined" ? process.env : undefined;
+  const runtimeValue = processEnv?.["BESZEL_BASE_URL"];
+  if (typeof runtimeValue === "string" && runtimeValue.trim().length > 0) {
+    return runtimeValue.trim();
+  }
+
+  const buildValue = import.meta.env.BESZEL_BASE_URL;
+  if (typeof buildValue === "string" && buildValue.trim().length > 0) {
+    return buildValue.trim();
+  }
+
+  return BESZEL_BASE_URL_FALLBACK;
 }
 
 function toNumber(value: unknown): number | null {
@@ -426,11 +441,11 @@ function buildMockSnapshot(): Snapshot {
   };
 }
 
-async function buildBeszelSnapshot(requestId: string): Promise<Snapshot> {
+async function buildBeszelSnapshot(baseUrl: string, requestId: string): Promise<Snapshot> {
   logWithLevel("info", requestId, "Attempting Beszel snapshot", {
-    baseUrl: BESZEL_BASE_URL,
+    baseUrl,
   });
-  const systems = await fetchCollection(BESZEL_BASE_URL, "systems", requestId);
+  const systems = await fetchCollection(baseUrl, "systems", requestId);
   if (!systems || systems.length === 0) {
     logWithLevel("warn", requestId, "Beszel systems collection is empty or unavailable");
     throw new Error("No systems from Beszel");
@@ -438,8 +453,8 @@ async function buildBeszelSnapshot(requestId: string): Promise<Snapshot> {
   logWithLevel("info", requestId, "Fetched systems from Beszel", { count: systems.length });
 
   const [containers, pods] = await Promise.all([
-    fetchFirstCollection(BESZEL_BASE_URL, COLLECTION_CANDIDATES.containers, requestId, "containers"),
-    fetchFirstCollection(BESZEL_BASE_URL, COLLECTION_CANDIDATES.pods, requestId, "pods"),
+    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.containers, requestId, "containers"),
+    fetchFirstCollection(baseUrl, COLLECTION_CANDIDATES.pods, requestId, "pods"),
   ]);
 
   const rows = buildRuntimeRows(systems, containers, pods, requestId);
@@ -467,17 +482,18 @@ async function buildBeszelSnapshot(requestId: string): Promise<Snapshot> {
 
 export const GET: APIRoute = async () => {
   const requestId = makeRequestId();
+  const baseUrl = resolveBeszelBaseUrl();
   logWithLevel("info", requestId, "Received /api/homelab request", {
-    baseUrl: BESZEL_BASE_URL,
+    baseUrl,
   });
   let snapshot: Snapshot;
 
   try {
-    snapshot = await buildBeszelSnapshot(requestId);
+    snapshot = await buildBeszelSnapshot(baseUrl, requestId);
   } catch (error) {
     logWithLevel("warn", requestId, "Falling back to mock homelab snapshot", {
       error: formatError(error),
-      baseUrl: BESZEL_BASE_URL,
+      baseUrl,
     });
     snapshot = buildMockSnapshot();
   }
