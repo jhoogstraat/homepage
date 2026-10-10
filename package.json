@@ -1,30 +1,33 @@
 {
-  "name": "void",
+  "name": "homepage",
   "type": "module",
   "version": "0.0.1",
-  "packageManager": "bun@1.3.9",
+  "packageManager": "bun@1.4.3",
   "scripts": {
-    "dev": "bunx --bun astro dev",
-    "build": "bun run check-sync && bunx --bun astro build",
-    "preview": "bunx --bun astro preview",
-    "astro": "bunx --bun astro",
-    "check-sync": "bun ./node_modules/@ariaskit/astro-i18n/dist/cli.mjs --base de"
+    "dev": "astro dev",
+    "build": "bun run check-sync && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check-sync": "bun scripts/check-i18n.ts",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@ariaskit/astro-i18n": "^0.0.8",
-    "@astrojs/node": "^9.5.3",
-    "@astrojs/sitemap": "^3.7.0",
-    "@lucide/astro": "^0.563.0",
-    "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.17.1",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.18"
+    "@astrojs/node": "^11.1.7",
+    "@astrojs/sitemap": "^3.7.4",
+    "@lucide/astro": "^1.55.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.8",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@types/node": "^25.2.0"
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.6.5",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
   },
-  "workspaces": [
-    "."
-  ]
+  "overrides": {
+    "picomatch@^2": "^2.3.2",
+    "picomatch@^4": "^4.0.7",
+    "source-map-js": "^1.2.2"
+  }
 }

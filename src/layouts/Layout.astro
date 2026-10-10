@@ -1,61 +1,54 @@
 ---
-import { PageMetadata } from "@/src/components/hybrid-astro-ui/page-metadata";
-import OGImage from "@/src/assets/background.png"
-import KubernetesBackground from "@/src/components/KubernetesBackground.astro";
-import Footer from "@/src/components/Footer.astro";
+import "@/src/styles/global.css";
+import OGImage from "@/src/assets/background.png";
+import Header from "@/src/components/Header.astro";
 import KeyboardShortcuts from "@/src/components/KeyboardShortcuts.astro";
-import LanguageRuntime from "@/src/components/LanguageRuntime.astro";
+import Footer from "@/src/components/Footer.astro";
+import { locales, localePath, messages, type Locale, type Page } from "@/src/lib/i18n";
 
 interface Props {
-	title: string;
-	description: string;
-	locale?: string;
-	alternateLinks?: { href: string; hreflang: string }[];
+  title: string;
+  description: string;
+  locale: Locale;
+  page: Page;
 }
-
-const { title, description, locale = "de", alternateLinks } =
-	Astro.props as Props;
+const { title, description, locale, page } = Astro.props;
+const canonical = new URL(localePath(locale, page), Astro.site);
+const image = new URL(OGImage.src, Astro.site);
 ---
-
-<!doctype html lang={locale}>
-	<head>
-		<PageMetadata
-			lang={locale}
-			title={title}
-			description={description}
-			image={OGImage}
-			enableClientRouter={false}
-			ogType="website"
-			favicons={[  { rel: "icon", type: "image/png", href: "/icon.png", sizes: "32x32" },]}
-			alternateLinks={alternateLinks}
-		/>
-		<script is:inline>
-			// Set initial theme before page renders to avoid flash
-			const theme = localStorage.getItem('theme') || 
-				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-			if (theme === 'dark') {
-				document.documentElement.classList.add('dark');
-			}
-			
-			// Set initial language from localStorage or browser preference
-			const storedLocale = localStorage.getItem('user-locale');
-			const browserLang = navigator.language.split('-')[0];
-			const supportedLangs = ['de', 'en', 'es'];
-			
-			const targetLang = storedLocale || (supportedLangs.includes(browserLang) ? browserLang : 'de');
-			
-			if (targetLang !== storedLocale) {
-				localStorage.setItem('user-locale', targetLang);
-			}
-			
-			document.documentElement.lang = targetLang;
-		</script>
-	</head>
-	<body class="*:max-w-2xl *:w-full flex flex-col items-center w-full font-mono px-5 md:px-0 leading-7">
-		<KubernetesBackground />
-		<slot />
-		<Footer locale={locale} />
-		<LanguageRuntime />
-		<KeyboardShortcuts />
-	</body>
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {locales.map((lang) => <link rel="alternate" hreflang={lang} href={new URL(localePath(lang, page), Astro.site)} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath("de", page), Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:locale" content={{ de: "de_DE", en: "en_US", es: "es_ES" }[locale]} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <script is:inline>
+      let theme;
+      try { theme = localStorage.getItem("theme"); } catch {}
+      document.documentElement.classList.toggle("dark", theme === "dark" || (theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches));
+    </script>
+  </head>
+  <body class="max-w-2xl mx-auto px-5 font-mono leading-7">
+    <a class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:z-50 focus:bg-background focus:p-2" href="#content">{messages[locale].ui.skip}</a>
+    <Header locale={locale} page={page} />
+    <main id="content" class="py-12 min-h-[65vh]" tabindex="-1"><slot /></main>
+    <Footer locale={locale} />
+    <KeyboardShortcuts locale={locale} page={page} />
+  </body>
 </html>

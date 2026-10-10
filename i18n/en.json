@@ -1,239 +1,41 @@
 {
-  "description": "Professional programmer building elegant software solutions",
+  "description": "Joshua Hoogstraat – software development with Go, Kubernetes and GitOps.",
   "nav": {
     "home": "home",
-    "blog": "blog",
     "about": "about",
-    "uses": "uses",
     "homelab": "homelab"
   },
   "hero": {
-    "title": "Professional Programmer",
-    "p1": "building elegant software solutions. Passionate about clean code, simplicity, and developer experience.",
-    "p2": "Works across the full stack, from system design to user interfaces. Currently focused on web technologies and open source.",
-    "p3": "Always learning, always building. Exploring new languages, frameworks, and contributing to the community."
-  },
-  "blog": {
-    "title": "Blog",
-    "description": "Thoughts on programming, software design, and technology"
+    "title": "Software developer",
+    "p1": "I build services with Go and run infrastructure with Kubernetes and GitOps.",
+    "p2": "My work focuses on backend development, automation and operating services.",
+    "p3": "In my homelab, I work with bootc, immutable systems and eBPF."
   },
   "about": {
     "title": "About",
-    "description": "Learn more about my journey and approach to software development"
-  },
-  "uses": {
-    "title": "Uses",
-    "description": "How I work, what I run, and what I am building now.",
-    "intro": "This is the practical stack behind my day-to-day work: tools I trust, lessons learned the hard way, and current experiments that keep me sharp.",
-    "terminal_label": "operator profile // uses",
-    "terminal_hint": "Use [ and ] to switch views • press F to cycle stack filters",
-    "tabs": {
-      "now": "Now",
-      "stack": "Stack",
-      "lessons": "Lessons",
-      "work": "Work"
-    },
-    "now": {
-      "title": "What is on my desk right now",
-      "cards": [
-        {
-          "label": "Currently building",
-          "text": "A personal platform around homelab operations with GitOps delivery and immutable image-based host updates."
-        },
-        {
-          "label": "Reliability obsession",
-          "text": "Tight feedback loops: every change must be observable, reproducible, and easy to roll back."
-        },
-        {
-          "label": "Learning loop",
-          "text": "Deep-diving eBPF and OpenTelemetry to understand behavior beyond dashboards and logs."
-        },
-        {
-          "label": "Personal rule",
-          "text": "If a task repeats more than twice, I automate it or document it as a scriptable runbook."
-        }
-      ]
-    },
-    "stack": {
-      "title": "Tech stack matrix",
-      "hint": "Filter by domain to see what I rely on every day.",
-      "filters": {
-        "all": "All",
-        "backend": "Backend",
-        "infra": "Infrastructure",
-        "tooling": "Tooling",
-        "observability": "Observability",
-        "frontend": "Frontend"
-      },
-      "badges": {
-        "daily": "Daily",
-        "active": "Active",
-        "exploring": "Exploring"
-      },
-      "items": [
-        {
-          "name": "Go",
-          "category": "backend",
-          "level": "daily",
-          "role": "Primary language for services and automation.",
-          "note": "Fast feedback, strong tooling, static binaries, predictable performance."
-        },
-        {
-          "name": "TypeScript",
-          "category": "frontend",
-          "level": "daily",
-          "role": "Glue language for UI and API boundaries.",
-          "note": "Makes interfaces explicit and safer across the stack."
-        },
-        {
-          "name": "Astro",
-          "category": "frontend",
-          "level": "active",
-          "role": "Framework for content-first and high-performance pages.",
-          "note": "Minimal runtime by default keeps pages fast and maintainable."
-        },
-        {
-          "name": "Tailwind CSS",
-          "category": "frontend",
-          "level": "daily",
-          "role": "Styling system for fast iterations with clear constraints.",
-          "note": "Keeps visual language consistent without heavy custom CSS."
-        },
-        {
-          "name": "Kubernetes",
-          "category": "infra",
-          "level": "daily",
-          "role": "Core platform for scheduling and service operations.",
-          "note": "I treat manifests as product artifacts, not just deployment files."
-        },
-        {
-          "name": "FluxCD",
-          "category": "infra",
-          "level": "active",
-          "role": "GitOps reconciler for cluster state.",
-          "note": "Desired state in Git gives safer changes and clear audit trails."
-        },
-        {
-          "name": "Terraform",
-          "category": "infra",
-          "level": "active",
-          "role": "Infrastructure provisioning and environment baselines.",
-          "note": "Declarative foundation so environments stay reproducible."
-        },
-        {
-          "name": "GitHub Actions",
-          "category": "tooling",
-          "level": "daily",
-          "role": "CI/CD pipelines and automation.",
-          "note": "Quality gates run early so production stays boring."
-        },
-        {
-          "name": "Prometheus",
-          "category": "observability",
-          "level": "active",
-          "role": "Metrics backbone for SLO-oriented monitoring.",
-          "note": "If I cannot measure it, I do not trust it in production."
-        },
-        {
-          "name": "Grafana",
-          "category": "observability",
-          "level": "active",
-          "role": "Operational visibility and alert dashboards.",
-          "note": "Dashboards are for navigation, alerts are for action."
-        },
-        {
-          "name": "OpenTelemetry",
-          "category": "observability",
-          "level": "exploring",
-          "role": "Unified traces/metrics/logs instrumentation strategy.",
-          "note": "Building shared telemetry conventions across projects."
-        },
-        {
-          "name": "bootc",
-          "category": "infra",
-          "level": "exploring",
-          "role": "Image-based host lifecycle for immutable systems.",
-          "note": "Pushing host management toward the same discipline as apps."
-        },
-        {
-          "name": "Neovim",
-          "category": "tooling",
-          "level": "daily",
-          "role": "Primary editing environment.",
-          "note": "Keyboard-first workflows reduce friction during deep work."
-        },
-        {
-          "name": "Zed",
-          "category": "tooling",
-          "level": "active",
-          "role": "Secondary editor for pair sessions and quick context switching.",
-          "note": "Useful for speed, especially when reviewing unfamiliar code."
-        },
-        {
-          "name": "PostgreSQL",
-          "category": "backend",
-          "level": "daily",
-          "role": "Default datastore for transactional workloads.",
-          "note": "Reliable, boring, and feature-rich for real systems."
-        },
-        {
-          "name": "Redis",
-          "category": "backend",
-          "level": "active",
-          "role": "Caching, queues, and low-latency coordination.",
-          "note": "Best when used intentionally and with strict expiry rules."
-        }
-      ]
-    },
-    "lessons": {
-      "title": "What the field taught me",
-      "items": [
-        {
-          "title": "Simple scales",
-          "text": "The most resilient systems are usually the easiest to explain on a whiteboard."
-        },
-        {
-          "title": "Observe before you optimize",
-          "text": "Most performance work starts with wrong assumptions. Instrumentation prevents wasted effort."
-        },
-        {
-          "title": "Automate the boring path",
-          "text": "Humans should review intent, not click through repetitive deployment steps."
-        },
-        {
-          "title": "Write for future me",
-          "text": "Clear docs and runbooks beat perfect memory every single time."
-        }
-      ]
-    },
-    "work": {
-      "title": "How I move from idea to production",
-      "mission_label": "Current mission",
-      "mission_text": "Building a reproducible cloud-native baseline that unifies local development, homelab infrastructure, and production-style operations.",
-      "step_prefix": "Step",
-      "steps": [
-        {
-          "title": "Discover",
-          "text": "Collect real pain points from daily operations and convert them into concrete engineering constraints."
-        },
-        {
-          "title": "Design",
-          "text": "Draft the smallest architecture that can survive real traffic, incidents, and maintenance."
-        },
-        {
-          "title": "Ship",
-          "text": "Deliver in thin slices with CI gates, progressive rollout, and rollback safety."
-        },
-        {
-          "title": "Observe",
-          "text": "Track latency, errors, and cost continuously, then feed that data into the next iteration."
-        }
-      ]
-    }
+    "description": "Backend development, automation and infrastructure."
   },
   "homelab": {
     "title": "Homelab",
-    "description": "My personal homelab setup and projects"
+    "description": "System usage and containers from my homelab.",
+    "unavailable": "Monitoring is currently unavailable.",
+    "loading": "Loading monitoring …",
+    "refresh": "Refresh",
+    "updated": "Updated",
+    "system": "System",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "disk": "Disk usage",
+    "thermal": "Temperature",
+    "containers": "Containers",
+    "image": "Image",
+    "status": "Status",
+    "search": "Search containers",
+    "empty": "No containers found.",
+    "running": "Running",
+    "degraded": "Degraded",
+    "exited": "Stopped",
+    "pending": "Unknown"
   },
   "legal": {
     "links": {
@@ -251,17 +53,9 @@
               "label": "Name",
               "value": "Joshua Hoogstraat"
             },
-            "address": {
-              "label": "Address",
-              "value": "[Please enter street, postal code, city, Germany]"
-            },
             "email": {
               "label": "Email",
               "value": "joshua.hoogstraat@icloud.com"
-            },
-            "phone": {
-              "label": "Phone",
-              "value": "[optional]"
             }
           }
         },
@@ -291,11 +85,10 @@
     "privacy": {
       "title": "Privacy Policy",
       "description": "Information about processing personal data on this website.",
-      "updated": "Last updated: February 20, 2026",
       "sections": {
         "controller": {
           "title": "Controller",
-          "text": "Responsible for data processing on this website: Joshua Hoogstraat, [please enter full postal address], email: joshua.hoogstraat@icloud.com."
+          "text": "Joshua Hoogstraat · joshua.hoogstraat@icloud.com."
         },
         "hosting": {
           "title": "Hosting location",
@@ -308,14 +101,10 @@
             "Processing is necessary to provide the website, ensure stability and protect against misuse."
           ]
         },
-        "visitorCount": {
-          "title": "Visitor counting",
-          "text": "Visitor counting is performed server-side and cookieless. No tracking cookies or browser fingerprinting are used. The count is based on aggregated request statistics."
-        },
         "legalBasis": {
           "title": "Legal basis",
           "items": [
-            "Art. 6 para. 1 lit. f GDPR (legitimate interests) for secure operation and basic reach measurement.",
+            "Art. 6 para. 1 lit. f GDPR (legitimate interests) for secure operation of the website.",
             "If storage/access on end devices ever becomes required and is not technically necessary, prior consent will be requested."
           ]
         },
@@ -340,12 +129,15 @@
         "complaint": {
           "title": "Right to lodge a complaint",
           "text": "You have the right to lodge a complaint with a data protection supervisory authority, especially in the EU member state of your residence, your place of work, or the place of the alleged infringement."
+        },
+        "preferences": {
+          "title": "Appearance",
+          "text": "Your color scheme and keyboard shortcut preference are stored in your browser’s local storage. They are not sent to the server."
         }
       }
     }
   },
   "contact": {
-    "status": "Available for opportunities",
     "email_label": "Email",
     "email_url": "mailto:joshua.hoogstraat@icloud.com",
     "github_label": "GitHub",
@@ -354,18 +146,74 @@
     "mastodon_url": "https://mastodon.social/@jhoogstraat",
     "bluesky_label": "Bluesky",
     "bluesky_url": "https://bsky.app/profile/jhoogstraat.bsky.social",
-    "x_label": "X",
-    "x_url": "https://x.com/jhoogstraat",
     "linkedin_label": "LinkedIn",
     "linkedin_url": "https://linkedin.com/in/jhoogstraat"
   },
   "terminal": {
-    "skills_cmd": "cat skills.txt",
-    "skills": "Go • Kubernetes • GitOps • Cloud-Native",
-    "hobbies_cmd": "cat hobbies.txt",
-    "hobbies": "Homelab • Open Source • Automation",
-    "focus_cmd": "echo $CURRENT_FOCUS",
-    "focus": "bootc • Immutable Infrastructure • eBPF",
-    "hint": "Press ? for keyboard shortcuts"
+    "skills": {
+      "label": "Focus areas",
+      "text": "Go • Kubernetes • GitOps • Cloud-Native",
+      "command": "cat skills.txt"
+    },
+    "hobbies": {
+      "label": "Interests",
+      "text": "Homelab • Open Source • Automation",
+      "command": "cat hobbies.txt"
+    },
+    "focus": {
+      "label": "Now",
+      "text": "bootc • Immutable Infrastructure • eBPF",
+      "command": "echo $CURRENT_FOCUS"
+    },
+    "title": "Terminal"
+  },
+  "music": {
+    "title": "Music",
+    "playing": "Now playing",
+    "recent": "Last played",
+    "idle": "Nothing playing",
+    "unavailable": "Music is currently unavailable."
+  },
+  "ui": {
+    "theme": "Toggle color scheme",
+    "navigation": "Navigation",
+    "skip": "Skip to content",
+    "languages": "Language"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "enabled": "Enable keyboard shortcuts",
+    "close": "Close",
+    "down": "Scroll down",
+    "up": "Scroll up",
+    "top": "Go to top",
+    "bottom": "Go to bottom",
+    "hint": "? opens keyboard shortcuts"
+  },
+  "status": {
+    "title": "Homelab status",
+    "details": "Details",
+    "empty": "No containers reported."
+  },
+  "weather": {
+    "title": "Weather",
+    "unavailable": "Weather is currently unavailable.",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "conditions": {
+      "clear": "Clear sky",
+      "mostlyClear": "Mainly clear",
+      "partlyCloudy": "Partly cloudy",
+      "overcast": "Overcast",
+      "fog": "Fog",
+      "drizzle": "Drizzle",
+      "freezing": "Freezing precipitation",
+      "rain": "Rain",
+      "snow": "Snow",
+      "showers": "Rain showers",
+      "snowShowers": "Snow showers",
+      "storm": "Thunderstorm",
+      "unknown": "Unknown"
+    }
   }
 }

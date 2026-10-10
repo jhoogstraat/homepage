@@ -1,0 +1,26 @@
+---
+import Layout from "@/src/layouts/Layout.astro";
+import Home from "@/src/components/pages/Home.astro";
+import About from "@/src/components/pages/About.astro";
+import Homelab from "@/src/components/pages/Homelab.astro";
+import Legal from "@/src/components/pages/Legal.astro";
+import { locales, pages, localePath, messages, type Locale, type Page } from "@/src/lib/i18n";
+
+export function getStaticPaths() {
+  return locales.flatMap((locale) => pages.map((page) => ({
+    params: { path: localePath(locale, page).slice(1) || undefined },
+    props: { locale, page },
+  })));
+}
+interface Props { locale: Locale; page: Page; }
+const { locale, page } = Astro.props;
+const copy = messages[locale];
+const metadata = page === "home" ? { title: "Joshua Hoogstraat", description: copy.description }
+  : page === "imprint" || page === "privacy" ? copy.legal[page] : copy[page];
+---
+<Layout title={page === "home" ? metadata.title : `${metadata.title} · Joshua Hoogstraat`} description={metadata.description} locale={locale} page={page}>
+  {page === "home" && <Home locale={locale} />}
+  {page === "about" && <About locale={locale} />}
+  {page === "homelab" && <Homelab locale={locale} />}
+  {(page === "imprint" || page === "privacy") && <Legal locale={locale} page={page} />}
+</Layout>

@@ -1,101 +1,23 @@
 ---
 import ThemeToggle from "./ThemeToggle.astro";
-import { useI18n } from "@ariaskit/astro-i18n";
-import { type LocaleSchema } from "@/src/types";
-
-type Locales = "de" | "en" | "es"
-
-interface Props {
-    locales: Locales[];
-    currentLocale: string;
-    currentPath?: string;
-}
-
-const { locales, currentLocale, currentPath = 'home' } = Astro.props as Props
-
-// Get all nav translations at build time
-const navTranslations = locales.map((loc) => {
-  const { t } = useI18n<LocaleSchema>({
-    ssg: {
-      // @ts-ignore
-      locale: loc,
-    },
-  });
-  
-  return {
-    locale: loc,
-    nav: [
-      { path: 'home', text: t("nav.home") },
-      { path: 'blog', text: t("nav.blog") },
-      { path: 'about', text: t("nav.about") },
-      { path: 'uses', text: t("nav.uses") },
-      { path: 'homelab', text: t("nav.homelab") },
-    ],
-  };
-});
-
-const defaultNav = navTranslations.find(n => n.locale === currentLocale)?.nav || navTranslations[0].nav;
-
-// Determine if a nav item is active
-const isActive = (path: string) => {
-    if (path === 'home' && (currentPath === 'home' || currentPath === '')) return true;
-    return path === currentPath;
-}
+import { locales, localePath, messages, type Locale, type Page } from "@/src/lib/i18n";
+interface Props { locale: Locale; page: Page; }
+const { locale, page } = Astro.props;
+const copy = messages[locale];
+const languageNames = { de: "Deutsch", en: "English", es: "Español" };
+const navigation = ["home", "about", "homelab"] as const;
 ---
-
-<header class="py-4 flex items-center justify-between w-full max-w-2xl fixed top-0 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm z-40 border-b border-border/50" data-lang-section>
-    <div class="flex items-center gap-8">
-        {navTranslations.map((trans) => (
-            <div class="nav-lang-content" data-lang={trans.locale}>
-                {trans.nav.map((item) => (
-                    <a
-                        data-nav-link
-                        data-link-locale={currentLocale}
-                        data-link-path={item.path}
-                        class={`text-sm uppercase tracking-wider transition-all duration-200 select-none relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background nav-link ${isActive(item.path) ? 'opacity-100 text-foreground font-semibold active' : 'opacity-50 hover:opacity-100'}`}
-                        href={`/${item.path === 'home' ? '' : item.path}`}
-                    >
-                        <span class="nav-text" data-nav-text={item.path}>{item.text}</span>
-                        <span class={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive(item.path) ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-                    </a>
-                ))}
-            </div>
-        ))}
-    </div>
-    
-    <div class="flex items-center gap-4">
-        <ThemeToggle />
-        
-        <div class="w-px h-4 bg-border"></div>
-        
-        <div class="flex gap-1 text-sm">
-            {
-                locales.map((item, index) => (
-                    <>
-                        <button 
-                            data-lang-switch
-                            data-switch-locale={item.toLowerCase()}
-                            class="uppercase transition-all duration-200 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded lang-switch opacity-50 hover:opacity-100"
-                        >
-                            {item}
-                        </button>
-                        {index < locales.length - 1 && <span class="opacity-30">/</span>}
-                    </>
-                ))
-            }
-        </div>
-    </div>
+<header class="sticky top-0 z-40 bg-background/95 border-b py-4 flex flex-wrap items-center justify-between gap-3">
+  <nav aria-label={copy.ui.navigation} class="flex flex-wrap gap-x-5 gap-y-2 text-sm uppercase">
+    {navigation.map((item) => (
+      <a href={localePath(locale, item)} aria-current={page === item ? "page" : undefined} class:list={["hover:text-primary", page === item ? "font-semibold text-primary" : "text-muted-foreground"]}>{copy.nav[item]}</a>
+    ))}
+  </nav>
+  <div class="flex items-center gap-3">
+    <button id="keyboard-help-toggle" type="button" hidden class="min-w-8 min-h-8 rounded hover:bg-secondary text-sm" aria-label={copy.shortcuts.title} aria-haspopup="dialog">?</button>
+    <ThemeToggle label={copy.ui.theme} />
+    <nav aria-label={copy.ui.languages} class="flex gap-2 text-xs uppercase">
+      {locales.map((lang) => <a href={localePath(lang, page)} lang={lang} hreflang={lang} aria-label={languageNames[lang]} aria-current={lang === locale ? "true" : undefined} class:list={["inline-flex min-w-6 min-h-6 items-center justify-center hover:text-primary", lang === locale ? "font-semibold" : "text-muted-foreground"]}>{lang}</a>)}
+    </nav>
+  </div>
 </header>
-
-<style>
-  .nav-lang-content {
-    display: none;
-  }
-  .nav-lang-content.active {
-    display: flex;
-    gap: 2rem;
-  }
-  .lang-switch.active {
-    opacity: 100 !important;
-  }
-</style>

@@ -1,0 +1,88 @@
+---
+import { messages, type Locale } from "@/src/lib/i18n";
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const copy = messages[locale].homelab;
+---
+<h1 class="text-4xl font-bold mb-4">{copy.title}</h1>
+<p class="text-muted-foreground mb-8">{copy.description}</p>
+<section id="homelab" data-copy={JSON.stringify(copy)}>
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <p data-message role="status" class="text-sm text-muted-foreground">{copy.unavailable}</p>
+    <button data-refresh type="button" hidden class="border rounded px-3 py-1 text-sm hover:border-primary">{copy.refresh}</button>
+  </div>
+  <div data-snapshot hidden>
+    <p class="text-sm mb-4">{copy.system}: <span data-system></span></p>
+    <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+      {(["cpu", "memory", "disk", "thermal"] as const).map((key) => <div class="border rounded p-3"><dt class="text-xs text-muted-foreground">{copy[key]}</dt><dd class="text-xl mt-1" data-metric={key}>—</dd></div>)}
+    </dl>
+    <h2 class="font-semibold mb-3">{copy.containers}</h2>
+    <label class="block text-xs text-muted-foreground mb-2" for="container-search">{copy.search}</label>
+    <input id="container-search" type="search" class="w-full border rounded bg-background p-2 text-sm mb-4" />
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <caption class="sr-only">{copy.containers}</caption>
+        <thead><tr>{[copy.containers, copy.image, copy.status, copy.cpu, copy.memory].map((label) => <th scope="col" class="py-2 pr-4 font-medium">{label}</th>)}</tr></thead>
+        <tbody data-rows></tbody>
+      </table>
+    </div>
+    <p data-empty hidden class="text-sm text-muted-foreground mt-4">{copy.empty}</p>
+  </div>
+</section>
+<script>
+  import type { Snapshot } from "@/src/lib/homelab";
+  import type { messages } from "@/src/lib/i18n";
+  const section = document.getElementById("homelab")!;
+  const copy = JSON.parse(section.dataset.copy!) as typeof messages.en.homelab;
+  const message = section.querySelector<HTMLElement>("[data-message]")!;
+  const button = section.querySelector<HTMLButtonElement>("[data-refresh]")!;
+  const panel = section.querySelector<HTMLElement>("[data-snapshot]")!;
+  const body = section.querySelector<HTMLTableSectionElement>("[data-rows]")!;
+  const search = section.querySelector<HTMLInputElement>("input")!;
+  const empty = section.querySelector<HTMLElement>("[data-empty]")!;
+  let rows: Snapshot["rows"] = [];
+
+  function renderRows() {
+    const query = search.value.trim().toLowerCase();
+    const visible = rows.filter((row) => row.name.toLowerCase().includes(query));
+    body.replaceChildren(...visible.map((row) => {
+      const tr = document.createElement("tr");
+      const values = [row.name, row.image, copy[row.status], row.cpu === null ? "—" : `${row.cpu.toFixed(1)}%`, row.memory === null ? "—" : `${Math.round(row.memory)} MiB`];
+      for (const value of values) {
+        const cell = document.createElement("td");
+        cell.className = "py-3 pr-4 border-t break-words";
+        cell.textContent = value;
+        tr.append(cell);
+      }
+      return tr;
+    }));
+    empty.hidden = visible.length > 0;
+  }
+
+  async function refresh() {
+    button.disabled = true;
+    message.textContent = copy.loading;
+    try {
+      const response = await fetch("/api/homelab", { signal: AbortSignal.timeout(20_000) });
+      if (!response.ok) throw new Error("Unavailable");
+      const data = await response.json() as Snapshot;
+      section.querySelector<HTMLElement>("[data-system]")!.textContent = `${data.system} · ${copy[data.systemStatus]}`;
+      section.querySelectorAll<HTMLElement>("[data-metric]").forEach((element) => {
+        const key = element.dataset.metric as keyof Snapshot["metrics"];
+        const value = data.metrics[key];
+        element.textContent = value === null ? "—" : `${Math.round(value)}${key === "thermal" ? "°C" : "%"}`;
+      });
+      rows = data.rows;
+      renderRows();
+      message.textContent = data.syncedAt ? `${copy.updated}: ${new Date(data.syncedAt).toLocaleString(document.documentElement.lang)}` : "";
+      panel.hidden = false;
+    } catch {
+      message.textContent = copy.unavailable;
+      panel.hidden = true;
+    } finally { button.disabled = false; }
+  }
+  button.hidden = false;
+  button.addEventListener("click", refresh);
+  search.addEventListener("input", renderRows);
+  refresh();
+</script>

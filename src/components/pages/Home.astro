@@ -1,0 +1,23 @@
+---
+import NowPlaying from "@/src/components/NowPlaying.astro";
+import Terminal from "@/src/components/Terminal.astro";
+import StatusMonitor from "@/src/components/StatusMonitor.astro";
+import Weather from "@/src/components/Weather.astro";
+import { messages, type Locale } from "@/src/lib/i18n";
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const copy = messages[locale];
+---
+<section class="mb-10">
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">Joshua Hoogstraat</h1>
+  <p class="text-xl md:text-2xl text-primary mb-4">{copy.hero.title}</p>
+  <p class="text-muted-foreground max-w-lg">{copy.hero.p1}</p>
+</section>
+<Terminal locale={locale} />
+<div class="grid sm:grid-cols-2 gap-4 items-start">
+  <StatusMonitor locale={locale} />
+  <div class="grid gap-4 min-w-0">
+    <NowPlaying locale={locale} />
+    <Weather locale={locale} />
+  </div>
+</div>

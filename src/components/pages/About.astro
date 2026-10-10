@@ -1,0 +1,8 @@
+---
+import { messages, type Locale } from "@/src/lib/i18n";
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const copy = messages[locale];
+---
+<h1 class="text-4xl font-bold mb-8">{copy.about.title}</h1>
+<div class="space-y-5 text-muted-foreground"><p>{copy.hero.p2}</p><p>{copy.hero.p3}</p></div>

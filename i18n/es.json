@@ -1,239 +1,41 @@
 {
-  "description": "Programador profesional creando soluciones de software elegantes",
+  "description": "Joshua Hoogstraat – desarrollo de software con Go, Kubernetes y GitOps.",
   "nav": {
     "home": "inicio",
-    "blog": "blog",
     "about": "sobre mí",
-    "uses": "usos",
     "homelab": "homelab"
   },
   "hero": {
-    "title": "Programador Profesional",
-    "p1": "creando soluciones de software elegantes. Apasionado por el código limpio, la simplicidad y la experiencia del desarrollador.",
-    "p2": "Trabaja en todo el stack, desde diseño de sistemas hasta interfaces de usuario. Actualmente enfocado en tecnologías web y código abierto.",
-    "p3": "Siempre aprendiendo, siempre construyendo. Explorando nuevos lenguajes, frameworks y contribuyendo a la comunidad."
-  },
-  "blog": {
-    "title": "Blog",
-    "description": "Pensamientos sobre programación, diseño de software y tecnología"
+    "title": "Desarrollador de software",
+    "p1": "Desarrollo servicios con Go y gestiono infraestructura con Kubernetes y GitOps.",
+    "p2": "Mi trabajo se centra en el desarrollo backend, la automatización y la operación de servicios.",
+    "p3": "En mi homelab trabajo con bootc, sistemas inmutables y eBPF."
   },
   "about": {
     "title": "Sobre Mí",
-    "description": "Conoce más sobre mi trayectoria y enfoque hacia el desarrollo de software"
-  },
-  "uses": {
-    "title": "Usos",
-    "description": "Cómo trabajo, qué uso y en qué estoy construyendo ahora.",
-    "intro": "Este es el stack práctico detrás de mi trabajo diario: herramientas que confío, lecciones aprendidas en campo y experimentos actuales.",
-    "terminal_label": "perfil de operador // usos",
-    "terminal_hint": "Usa [ y ] para cambiar de vista • pulsa F para cambiar filtros del stack",
-    "tabs": {
-      "now": "Ahora",
-      "stack": "Stack",
-      "lessons": "Lecciones",
-      "work": "Trabajo"
-    },
-    "now": {
-      "title": "Qué tengo ahora en mi mesa",
-      "cards": [
-        {
-          "label": "Construyendo ahora",
-          "text": "Una plataforma personal para operaciones de homelab con entrega GitOps y actualizaciones de host inmutables basadas en imágenes."
-        },
-        {
-          "label": "Obsesión por la fiabilidad",
-          "text": "Bucles de feedback cortos: cada cambio debe ser observable, reproducible y fácil de revertir."
-        },
-        {
-          "label": "Bucle de aprendizaje",
-          "text": "Profundizando en eBPF y OpenTelemetry para entender el comportamiento más allá de dashboards y logs."
-        },
-        {
-          "label": "Regla personal",
-          "text": "Si una tarea se repite más de dos veces, la automatizo o la documento como runbook ejecutable."
-        }
-      ]
-    },
-    "stack": {
-      "title": "Matriz de stack tecnológico",
-      "hint": "Filtra por dominio para ver lo que uso cada día.",
-      "filters": {
-        "all": "Todo",
-        "backend": "Backend",
-        "infra": "Infraestructura",
-        "tooling": "Herramientas",
-        "observability": "Observabilidad",
-        "frontend": "Frontend"
-      },
-      "badges": {
-        "daily": "Diario",
-        "active": "Activo",
-        "exploring": "Explorando"
-      },
-      "items": [
-        {
-          "name": "Go",
-          "category": "backend",
-          "level": "daily",
-          "role": "Lenguaje principal para servicios y automatización.",
-          "note": "Feedback rápido, tooling fuerte, binarios estáticos y rendimiento predecible."
-        },
-        {
-          "name": "TypeScript",
-          "category": "frontend",
-          "level": "daily",
-          "role": "Lenguaje puente para límites entre UI y API.",
-          "note": "Hace explícitas las interfaces y reduce errores en todo el stack."
-        },
-        {
-          "name": "Astro",
-          "category": "frontend",
-          "level": "active",
-          "role": "Framework para páginas orientadas a contenido y alto rendimiento.",
-          "note": "Runtime mínimo por defecto mantiene las páginas rápidas y mantenibles."
-        },
-        {
-          "name": "Tailwind CSS",
-          "category": "frontend",
-          "level": "daily",
-          "role": "Sistema de estilos para iterar rápido con límites claros.",
-          "note": "Mantiene un lenguaje visual consistente sin mucho CSS manual."
-        },
-        {
-          "name": "Kubernetes",
-          "category": "infra",
-          "level": "daily",
-          "role": "Plataforma principal para scheduling y operación de servicios.",
-          "note": "Trato los manifiestos como artefactos de producto, no solo archivos de despliegue."
-        },
-        {
-          "name": "FluxCD",
-          "category": "infra",
-          "level": "active",
-          "role": "Reconciliador GitOps para el estado del clúster.",
-          "note": "El estado deseado en Git da cambios más seguros y trazabilidad clara."
-        },
-        {
-          "name": "Terraform",
-          "category": "infra",
-          "level": "active",
-          "role": "Provisionamiento de infraestructura y baselines de entorno.",
-          "note": "Base declarativa para mantener entornos reproducibles."
-        },
-        {
-          "name": "GitHub Actions",
-          "category": "tooling",
-          "level": "daily",
-          "role": "Pipelines CI/CD y automatización.",
-          "note": "Los controles de calidad corren temprano para mantener producción estable."
-        },
-        {
-          "name": "Prometheus",
-          "category": "observability",
-          "level": "active",
-          "role": "Backbone de métricas para monitoreo orientado a SLO.",
-          "note": "Si no puedo medirlo, no confío en ello en producción."
-        },
-        {
-          "name": "Grafana",
-          "category": "observability",
-          "level": "active",
-          "role": "Visibilidad operativa y paneles de alertas.",
-          "note": "Los dashboards son para navegación, las alertas para acción."
-        },
-        {
-          "name": "OpenTelemetry",
-          "category": "observability",
-          "level": "exploring",
-          "role": "Estrategia unificada de instrumentación de trazas/métricas/logs.",
-          "note": "Construyendo convenciones compartidas de telemetría entre proyectos."
-        },
-        {
-          "name": "bootc",
-          "category": "infra",
-          "level": "exploring",
-          "role": "Ciclo de vida de hosts basado en imágenes para sistemas inmutables.",
-          "note": "Llevando la gestión de hosts al mismo nivel de disciplina que las apps."
-        },
-        {
-          "name": "Neovim",
-          "category": "tooling",
-          "level": "daily",
-          "role": "Entorno principal de edición.",
-          "note": "Flujos keyboard-first reducen fricción durante trabajo profundo."
-        },
-        {
-          "name": "Zed",
-          "category": "tooling",
-          "level": "active",
-          "role": "Editor secundario para pairing y cambios rápidos de contexto.",
-          "note": "Útil por velocidad, especialmente revisando código desconocido."
-        },
-        {
-          "name": "PostgreSQL",
-          "category": "backend",
-          "level": "daily",
-          "role": "Base de datos por defecto para cargas transaccionales.",
-          "note": "Confiable, estable y con muchas capacidades para sistemas reales."
-        },
-        {
-          "name": "Redis",
-          "category": "backend",
-          "level": "active",
-          "role": "Caché, colas y coordinación de baja latencia.",
-          "note": "Rinde mejor con uso intencional y reglas estrictas de expiración."
-        }
-      ]
-    },
-    "lessons": {
-      "title": "Lo que me enseñó el campo",
-      "items": [
-        {
-          "title": "Lo simple escala",
-          "text": "Los sistemas más resistentes suelen ser los más fáciles de explicar en una pizarra."
-        },
-        {
-          "title": "Observar antes de optimizar",
-          "text": "Gran parte del trabajo de rendimiento empieza con suposiciones incorrectas. La instrumentación ahorra tiempo."
-        },
-        {
-          "title": "Automatizar el camino aburrido",
-          "text": "Las personas deben revisar intención, no hacer clic en pasos repetitivos de despliegue."
-        },
-        {
-          "title": "Escribir para mi yo futuro",
-          "text": "Buena documentación y runbooks ganan siempre frente a la memoria perfecta."
-        }
-      ]
-    },
-    "work": {
-      "title": "Cómo paso de idea a producción",
-      "mission_label": "Misión actual",
-      "mission_text": "Construyendo una base cloud-native reproducible que unifique desarrollo local, infraestructura homelab y operación estilo producción.",
-      "step_prefix": "Paso",
-      "steps": [
-        {
-          "title": "Descubrir",
-          "text": "Recolectar dolores reales de operación diaria y convertirlos en restricciones técnicas concretas."
-        },
-        {
-          "title": "Diseñar",
-          "text": "Definir la arquitectura más pequeña que soporte tráfico real, incidentes y mantenimiento."
-        },
-        {
-          "title": "Entregar",
-          "text": "Publicar en incrementos pequeños con puertas de CI, despliegue progresivo y rollback seguro."
-        },
-        {
-          "title": "Observar",
-          "text": "Seguir latencia, errores y coste de forma continua, y usar esos datos en la siguiente iteración."
-        }
-      ]
-    }
+    "description": "Desarrollo backend, automatización e infraestructura."
   },
   "homelab": {
     "title": "Homelab",
-    "description": "Mi configuración y proyectos de homelab personal"
+    "description": "Uso del sistema y contenedores de mi homelab.",
+    "unavailable": "La monitorización no está disponible.",
+    "loading": "Cargando monitorización …",
+    "refresh": "Actualizar",
+    "updated": "Actualizado",
+    "system": "Sistema",
+    "cpu": "CPU",
+    "memory": "Memoria",
+    "disk": "Uso del disco",
+    "thermal": "Temperatura",
+    "containers": "Contenedores",
+    "image": "Imagen",
+    "status": "Estado",
+    "search": "Buscar contenedores",
+    "empty": "No se encontraron contenedores.",
+    "running": "En ejecución",
+    "degraded": "Degradado",
+    "exited": "Detenido",
+    "pending": "Desconocido"
   },
   "legal": {
     "links": {
@@ -251,17 +53,9 @@
               "label": "Nombre",
               "value": "Joshua Hoogstraat"
             },
-            "address": {
-              "label": "Dirección",
-              "value": "[Introduce calle, código postal, ciudad, Alemania]"
-            },
             "email": {
               "label": "Correo electrónico",
               "value": "joshua.hoogstraat@icloud.com"
-            },
-            "phone": {
-              "label": "Teléfono",
-              "value": "[opcional]"
             }
           }
         },
@@ -291,11 +85,10 @@
     "privacy": {
       "title": "Política de privacidad",
       "description": "Información sobre el tratamiento de datos personales en este sitio web.",
-      "updated": "Última actualización: 20 de febrero de 2026",
       "sections": {
         "controller": {
           "title": "Responsable del tratamiento",
-          "text": "Responsable del tratamiento de datos en este sitio web: Joshua Hoogstraat, [introduce dirección postal completa], correo: joshua.hoogstraat@icloud.com."
+          "text": "Joshua Hoogstraat · joshua.hoogstraat@icloud.com."
         },
         "hosting": {
           "title": "Ubicación del alojamiento",
@@ -308,14 +101,10 @@
             "El tratamiento es necesario para ofrecer el sitio, garantizar la estabilidad y prevenir abusos."
           ]
         },
-        "visitorCount": {
-          "title": "Conteo de visitantes",
-          "text": "El conteo de visitantes se realiza del lado del servidor y sin cookies. No se usan cookies de seguimiento ni fingerprinting del navegador. El conteo se basa en estadísticas agregadas de solicitudes."
-        },
         "legalBasis": {
           "title": "Base legal",
           "items": [
-            "Art. 6 apdo. 1 letra f RGPD (intereses legítimos) para la operación segura y una medición básica de alcance.",
+            "Art. 6 apartado 1 letra f RGPD (interés legítimo) para el funcionamiento seguro del sitio web.",
             "Si en el futuro fuera necesario almacenar o acceder al dispositivo del usuario de forma no técnica, se solicitará consentimiento previo."
           ]
         },
@@ -340,12 +129,15 @@
         "complaint": {
           "title": "Derecho a presentar reclamación",
           "text": "Tienes derecho a presentar una reclamación ante una autoridad de control de protección de datos, especialmente en el Estado miembro de la UE de tu residencia, tu lugar de trabajo o el lugar de la supuesta infracción."
+        },
+        "preferences": {
+          "title": "Apariencia",
+          "text": "El tema y la preferencia de atajos se guardan en el almacenamiento local del navegador. No se envían al servidor."
         }
       }
     }
   },
   "contact": {
-    "status": "Disponible para oportunidades",
     "email_label": "Email",
     "email_url": "mailto:joshua.hoogstraat@icloud.com",
     "github_label": "GitHub",
@@ -354,18 +146,74 @@
     "mastodon_url": "https://mastodon.social/@jhoogstraat",
     "bluesky_label": "Bluesky",
     "bluesky_url": "https://bsky.app/profile/jhoogstraat.bsky.social",
-    "x_label": "X",
-    "x_url": "https://x.com/jhoogstraat",
     "linkedin_label": "LinkedIn",
     "linkedin_url": "https://linkedin.com/in/jhoogstraat"
   },
   "terminal": {
-    "skills_cmd": "cat skills.txt",
-    "skills": "Go • Kubernetes • GitOps • Cloud-Native",
-    "hobbies_cmd": "cat hobbies.txt",
-    "hobbies": "Homelab • Código Abierto • Automatización",
-    "focus_cmd": "echo $CURRENT_FOCUS",
-    "focus": "bootc • Infraestructura Inmutable • eBPF",
-    "hint": "Presiona ? para atajos"
+    "skills": {
+      "label": "Especialidades",
+      "text": "Go • Kubernetes • GitOps • Cloud-Native",
+      "command": "cat skills.txt"
+    },
+    "hobbies": {
+      "label": "Intereses",
+      "text": "Homelab • Código Abierto • Automatización",
+      "command": "cat hobbies.txt"
+    },
+    "focus": {
+      "label": "Ahora",
+      "text": "bootc • Infraestructura Inmutable • eBPF",
+      "command": "echo $CURRENT_FOCUS"
+    },
+    "title": "Terminal"
+  },
+  "music": {
+    "title": "Música",
+    "playing": "Sonando ahora",
+    "recent": "Última reproducción",
+    "idle": "Sin reproducción",
+    "unavailable": "La música no está disponible."
+  },
+  "ui": {
+    "theme": "Cambiar tema",
+    "navigation": "Navegación",
+    "skip": "Ir al contenido",
+    "languages": "Idioma"
+  },
+  "shortcuts": {
+    "title": "Atajos de teclado",
+    "enabled": "Activar atajos de teclado",
+    "close": "Cerrar",
+    "down": "Desplazarse hacia abajo",
+    "up": "Desplazarse hacia arriba",
+    "top": "Ir al inicio",
+    "bottom": "Ir al final",
+    "hint": "? abre los atajos de teclado"
+  },
+  "status": {
+    "title": "Estado del homelab",
+    "details": "Detalles",
+    "empty": "No se han comunicado contenedores."
+  },
+  "weather": {
+    "title": "Tiempo",
+    "unavailable": "El tiempo no está disponible.",
+    "humidity": "Humedad",
+    "wind": "Viento",
+    "conditions": {
+      "clear": "Despejado",
+      "mostlyClear": "Mayormente despejado",
+      "partlyCloudy": "Parcialmente nublado",
+      "overcast": "Nublado",
+      "fog": "Niebla",
+      "drizzle": "Llovizna",
+      "freezing": "Precipitación helada",
+      "rain": "Lluvia",
+      "snow": "Nieve",
+      "showers": "Chubascos",
+      "snowShowers": "Chubascos de nieve",
+      "storm": "Tormenta",
+      "unknown": "Desconocido"
+    }
   }
 }

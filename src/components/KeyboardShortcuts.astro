@@ -1,183 +1,50 @@
 ---
-// Keyboard shortcuts component - Neovim style navigation
-// Add to Layout for site-wide keyboard navigation
+import { locales, localePath, messages, type Locale, type Page } from "@/src/lib/i18n";
+interface Props { locale: Locale; page: Page; }
+const { locale, page } = Astro.props;
+const { nav, ui, shortcuts } = messages[locale];
+const navigation = { h: "home", a: "about", l: "homelab" } as const;
 ---
-
+<dialog id="keyboard-help" class="m-auto max-w-md w-[calc(100%-2rem)] max-h-[80vh] overflow-y-auto rounded-lg border p-6 bg-background text-foreground backdrop:bg-black/50" aria-labelledby="keyboard-help-title">
+  <form method="dialog" class="flex items-center justify-between gap-4 mb-5">
+    <h2 id="keyboard-help-title" class="font-semibold">{shortcuts.title}</h2>
+    <button aria-label={shortcuts.close} class="rounded px-2 hover:bg-secondary" autofocus>×</button>
+  </form>
+  <label class="flex items-center gap-2 text-sm mb-5"><input id="shortcuts-enabled" type="checkbox" checked />{shortcuts.enabled}</label>
+  <dl class="grid grid-cols-[4rem_1fr] gap-x-3 gap-y-2 text-sm">
+    {Object.entries(navigation).map(([key, destination]) => <><dt><kbd>{key === "a" ? "a / b" : key}</kbd></dt><dd><a href={localePath(locale, destination)} data-key={key}>{nav[destination]}</a></dd></>)}
+    <dt><kbd>t</kbd></dt><dd>{ui.theme}</dd>
+    {locales.map((lang, index) => <><dt><kbd>{index + 1}</kbd></dt><dd><a href={localePath(lang, page)} data-key={String(index + 1)} lang={lang}>{{ de: "Deutsch", en: "English", es: "Español" }[lang]}</a></dd></>)}
+    <dt><kbd>j / k</kbd></dt><dd>{shortcuts.down} / {shortcuts.up}</dd>
+    <dt><kbd>g / gg</kbd></dt><dd>{shortcuts.top}</dd>
+    <dt><kbd>G</kbd></dt><dd>{shortcuts.bottom}</dd>
+    <dt><kbd>?</kbd></dt><dd>{shortcuts.title}</dd>
+    <dt><kbd>Esc</kbd></dt><dd>{shortcuts.close}</dd>
+  </dl>
+</dialog>
 <script>
-  const shortcuts: Record<string, { action: () => void; description: string }> = {
-    // Navigation
-    'h': { action: () => navigate('/'), description: 'Home' },
-    'b': { action: () => navigate('/blog'), description: 'Blog' },
-    'a': { action: () => navigate('/about'), description: 'About' },
-    'u': { action: () => navigate('/uses'), description: 'Uses' },
-    'l': { action: () => navigate('/homelab'), description: 'Homelab' },
-    
-    // Theme
-    't': { action: toggleTheme, description: 'Toggle theme' },
-    
-    // Languages
-    '1': { action: () => switchLanguage('de'), description: 'Deutsch' },
-    '2': { action: () => switchLanguage('en'), description: 'English' },
-    '3': { action: () => switchLanguage('es'), description: 'Español' },
-    
-    // Scrolling
-    'j': { action: () => scrollBy(100), description: 'Scroll down' },
-    'k': { action: () => scrollBy(-100), description: 'Scroll up' },
-    'g': { action: handleG, description: 'Go to top (gg for bottom)' },
-    'G': { action: () => scrollTo(0, document.body.scrollHeight), description: 'Go to bottom' },
-    
-    // Help
-    '?': { action: showHelp, description: 'Show shortcuts' },
-    'Escape': { action: hideHelp, description: 'Close modal' },
-  };
-
-  let lastKey = '';
-  let lastKeyTime = 0;
-  let helpModal: HTMLElement | null = null;
-
-  function navigate(path: string) {
-    window.location.href = path;
-  }
-
-  function switchLanguage(lang: string) {
-    const setSiteLanguage = (window as any).setSiteLanguage;
-    if (typeof setSiteLanguage === 'function') {
-      setSiteLanguage(lang);
-      return;
-    }
-
-    localStorage.setItem('user-locale', lang);
-    document.documentElement.lang = lang;
-    window.dispatchEvent(new CustomEvent('languagechange', { detail: { locale: lang } }));
-  }
-
-  function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = html.classList.contains('dark');
-    
-    if (isDark) {
-      html.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    } else {
-      html.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    }
-  }
-
-  function scrollBy(amount: number) {
-    window.scrollBy({ top: amount, behavior: 'smooth' });
-  }
-
-  function handleG() {
-    const now = Date.now();
-    if (lastKey === 'g' && now - lastKeyTime < 500) {
-      // gg - go to bottom
-      scrollTo(0, document.body.scrollHeight);
-      lastKey = '';
-    } else {
-      // g - go to top
-      scrollTo(0, 0);
-      lastKey = 'g';
-      lastKeyTime = now;
-    }
-  }
-
-  function showHelp() {
-    if (helpModal) return;
-    
-    helpModal = document.createElement('div');
-    helpModal.id = 'keyboard-help-modal';
-    helpModal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center';
-    helpModal.innerHTML = `
-      <div class="bg-background border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">Keyboard Shortcuts</h2>
-          <button class="text-sm opacity-50 hover:opacity-100" onclick="document.getElementById('keyboard-help-modal')?.remove(); window.helpModal = null;">✕</button>
-        </div>
-        <div class="space-y-4 text-sm">
-          <div>
-            <h3 class="text-xs uppercase tracking-wide opacity-50 mb-2">Navigation</h3>
-            <div class="grid grid-cols-2 gap-1">
-              ${Object.entries(shortcuts).filter(([k]) => ['h', 'b', 'a', 'u', 'l'].includes(k)).map(([key, { description }]) => `
-                <div class="flex items-center gap-2">
-                  <kbd class="px-2 py-0.5 bg-secondary rounded text-xs font-mono">${key}</kbd>
-                  <span class="opacity-70">${description}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div>
-            <h3 class="text-xs uppercase tracking-wide opacity-50 mb-2">Theme & Language</h3>
-            <div class="grid grid-cols-2 gap-1">
-              ${Object.entries(shortcuts).filter(([k]) => ['t', '1', '2', '3'].includes(k)).map(([key, { description }]) => `
-                <div class="flex items-center gap-2">
-                  <kbd class="px-2 py-0.5 bg-secondary rounded text-xs font-mono">${key}</kbd>
-                  <span class="opacity-70">${description}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div>
-            <h3 class="text-xs uppercase tracking-wide opacity-50 mb-2">Scrolling</h3>
-            <div class="grid grid-cols-2 gap-1">
-              ${Object.entries(shortcuts).filter(([k]) => ['j', 'k', 'g', 'G'].includes(k)).map(([key, { description }]) => `
-                <div class="flex items-center gap-2">
-                  <kbd class="px-2 py-0.5 bg-secondary rounded text-xs font-mono">${key}</kbd>
-                  <span class="opacity-70">${description}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div class="pt-2 border-t border-border text-xs opacity-50">
-            Press <kbd class="px-1 py-0.5 bg-secondary rounded">?</kbd> to toggle this help
-          </div>
-        </div>
-      </div>
-    `;
-    
-    helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) {
-        hideHelp();
-      }
-    });
-    
-    document.body.appendChild(helpModal);
-  }
-
-  function hideHelp() {
-    if (helpModal) {
-      helpModal.remove();
-      helpModal = null;
-    }
-  }
-
-  // Track if user is typing in an input
-  function isInputFocused(): boolean {
-    const active = document.activeElement;
-    return active instanceof HTMLInputElement || 
-           active instanceof HTMLTextAreaElement || 
-           active?.getAttribute('contenteditable') === 'true';
-  }
-
-  document.addEventListener('keydown', (e) => {
-    // Don't trigger shortcuts when typing
-    if (isInputFocused()) return;
-    
-    // Check for Escape first
-    if (e.key === 'Escape') {
-      hideHelp();
-      return;
-    }
-    
-    const key = e.key;
-    const shortcut = shortcuts[key];
-    
-    if (shortcut) {
-      e.preventDefault();
-      shortcut.action();
-    }
+  const dialog = document.getElementById("keyboard-help") as HTMLDialogElement;
+  const trigger = document.getElementById("keyboard-help-toggle")!;
+  const enabled = document.getElementById("shortcuts-enabled") as HTMLInputElement;
+  try { enabled.checked = localStorage.getItem("keyboard-shortcuts") !== "off"; } catch {}
+  enabled.addEventListener("change", () => {
+    try { localStorage.setItem("keyboard-shortcuts", enabled.checked ? "on" : "off"); } catch {}
   });
-
-  // Expose helpModal to window for the button onclick
-  (window as any).helpModal = helpModal;
+  trigger.hidden = false;
+  trigger.addEventListener("click", () => dialog.open ? dialog.close() : dialog.showModal());
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+  document.addEventListener("keydown", (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
+    const target = event.target;
+    if (target instanceof HTMLElement && (target.isContentEditable || target.closest("input, textarea, select"))) return;
+    if (event.key === "?") { event.preventDefault(); trigger.click(); return; }
+    if (dialog.open || !enabled.checked) return;
+    const key = event.key === "b" ? "a" : event.key;
+    const link = [...dialog.querySelectorAll<HTMLAnchorElement>("[data-key]")].find((item) => item.dataset.key === key);
+    if (link) { event.preventDefault(); link.click(); return; }
+    if (key === "t") { event.preventDefault(); document.getElementById("theme-toggle")?.click(); }
+    const behavior = matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    if (key === "j" || key === "k") { event.preventDefault(); window.scrollBy({ top: key === "j" ? 100 : -100, behavior }); }
+    if (key === "g" || key === "G") { event.preventDefault(); window.scrollTo({ top: key === "g" ? 0 : document.documentElement.scrollHeight, behavior }); }
+  });
 </script>
